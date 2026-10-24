@@ -21,6 +21,8 @@ export const COPY: Record<string, string> = {
     already_registered: 'You already have a lab.',
     insufficient_gloo: 'Not enough Gloo yet.',
     no_egg: 'No eggs to open yet.',
+    egg_not_found: "We couldn't find that egg.",
+    code_taken: 'Player codes are busy right now. Try again.',
     tier_locked: 'Beat the level before this one first.',
     self_battle: "That's your own code. Pick a friend's lab.",
     not_locked_by_you: 'Lock this target before you fight.',
@@ -44,6 +46,7 @@ export function fail(status: number, code: string, details?: Record<string, unkn
 /** Contract custom error name → [status, code]. */
 const REVERTS: Record<string, [number, string]> = {
     UsernameTaken: [409, 'username_taken'], AlreadyRegistered: [409, 'already_registered'], InvalidUsername: [400, 'invalid_username'],
+    CodeTaken: [409, 'code_taken'],
     NotOwner: [403, 'not_owner'], WrongSlot: [400, 'wrong_slot'], NoEgg: [400, 'no_egg'], InsufficientGloo: [400, 'insufficient_gloo'],
     TierLocked: [400, 'tier_locked'], SelfBattle: [400, 'self_battle'], UnknownPlayer: [404, 'player_not_found'],
     AlreadyFinalized: [409, 'already_finalized'], DropNotStarted: [409, 'drop_not_started'], DropClosed: [409, 'drop_closed'],

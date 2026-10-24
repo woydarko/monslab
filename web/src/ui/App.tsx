@@ -21,6 +21,7 @@ import { parseDeepLink } from './deepLink.ts';
 import { backToLab, openReplay, refreshMe } from '../game/actions.ts';
 import RegisterDialog from './RegisterDialog.tsx';
 import ReplayScreen from './ReplayScreen.tsx';
+import PvpSheet from './PvpSheet.tsx';
 import WalletProvider from '../wallet/WalletProvider.tsx';
 
 /** Screens shown over the Lab scene (the Lab stays mounted underneath). */
@@ -75,7 +76,8 @@ function Frame() {
                         {inLab && <LabScreen />}
                         {phase === 'levels' && <LevelsSheet />}
                         {phase === 'collection' && <CollectionSheet />}
-                        {(phase === 'pvp' || phase === 'community' || phase === 'war' || phase === 'redeem' || phase === 'profile') && (
+                        {phase === 'pvp' && <PvpSheet />}
+                        {(phase === 'community' || phase === 'war' || phase === 'redeem' || phase === 'profile') && (
                             <Placeholder phase={phase} />
                         )}
                         {phase === 'replay' && (

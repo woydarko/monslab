@@ -16,6 +16,12 @@ import { gameEvents } from './events.ts';
 import { haptic } from './haptic.ts';
 import { playMusic, sfx, stopAllSfx } from './audio.ts';
 import { wibDayKey } from './time.ts';
+import { api } from '../chain/api.ts';
+import type { BattleRecord, ReplaySim } from '../chain/replay.ts';
+import { effectiveLoadout } from '../ui/effectiveLoadout.ts';
+import { calloutPlan } from '../ui/battleCallout.ts';
+import { clearCallout, emitCallout } from '../ui/callouts.ts';
+import type { BattleRequest, BattleView, Loadout, MeView } from '../../server/types.ts';
 
 export const DAILY_CAPSULE_WINS = 5;
 const PITY_EVERY = 8;
@@ -91,7 +97,10 @@ export function enterLab(opts: { mix?: boolean } = {}): void {
 /** Title screen: the player's monster showcased on the pedestal behind the logo. */
 export function enterTitle(): void {
     stopAllSfx();
-    store.patch({ phase: 'title', battle: null, result: null, capsule: null, howTo: false });
+    // A `?replay=` deep link goes straight to the replay screen (no login needed).
+    const replay = store.get().deepLink.replay;
+    store.patch({ phase: replay ? 'replay' : 'title', battle: null, result: null, capsule: null, howTo: false });
+    if (replay && !store.get().replayId) store.patch({ replayId: replay });
     playMusic('lab');
     engine.show((e) => {
         const m = activeMonster();
@@ -338,21 +347,9 @@ export function openCapsule(): void {
         s.goo += goo;
     }
     commit();
-    store.patch({ phase: 'capsule', capsule: { rarity, partId, isNew, goo, stage: 'egg', cracks: 0 } });
+    store.patch({ phase: 'egg', capsule: { rarity, partId, isNew, goo, stage: 'egg', cracks: 0 } });
     engine.show((e) => e.lab()?.showEgg(rarity));
     playMusic('lab');
-}
-
-/** Spend Goo on an egg. Bought eggs skip the daily win limit; that's the point of saving up. */
-export function buyEgg(): void {
-    const s = save();
-    if (s.goo < EGG_PRICE) return;
-    s.goo -= EGG_PRICE;
-    s.capsules.stored++;
-    commit();
-    sfx('pop', { pitch: 0.9 });
-    haptic('light');
-    toast('Egg bought');
 }
 
 export function tapCapsule(): void {
@@ -429,13 +426,352 @@ export function claimFamilyEgg(family: FamilyId): void {
 }
 
 export function openArena(): void {
-    store.patch({ phase: 'arena' });
+    store.patch({ phase: 'levels' });
 }
 
 export function backToLab(): void {
     if (store.get().phase === 'lab') return;
     const ph = store.get().phase;
-    const fromScene = ph === 'arena' || ph === 'collection';
+    const fromScene = ph === 'levels' || ph === 'collection' || ph === 'pvp' || ph === 'profile' || ph === 'redeem';
     if (fromScene) store.patch({ phase: 'lab' });
     else enterLab();
+}
+
+// ───────────────────────── chain bridge ─────────────────────────
+// Chain is the source of truth: MeView from /api/me is mirrored into the local
+// save so the existing screens render real balances, eggs, Gloo and loadout.
+
+// shortcut: local token map until game/data/tokenIds.ts (G2) lands; same rule (PARTS index + 1, starters 101–103).
+const STARTER_TOKEN: Record<string, number> = { goo_head: 101, goo_body: 102, goo_legs: 103 };
+const STARTER_PART: Record<number, string> = { 101: 'goo_head', 102: 'goo_body', 103: 'goo_legs' };
+
+export function tokenToPartId(id: number): string | null {
+    if (id >= 1 && id <= PARTS.length) return PARTS[id - 1].id;
+    return STARTER_PART[id] ?? null;
+}
+
+export function partToToken(partId: string): number {
+    return STARTER_TOKEN[partId] ?? PARTS.findIndex((p) => p.id === partId) + 1;
+}
+
+export function loadoutParts(l: Loadout): MonsterParts {
+    return [tokenToPartId(l.head) ?? 'goo_head', tokenToPartId(l.body) ?? 'goo_body', tokenToPartId(l.legs) ?? 'goo_legs'];
+}
+
+/** Accessory picked in the Lab (cosmetic; saved with the loadout). */
+let accChoice = 0;
+export const currentAcc = (): number => accChoice;
+export function selectAcc(id: number): void {
+    accChoice = id;
+    store.patch({ rev: store.get().rev + 1 });
+}
+
+export function applyMe(me: MeView): void {
+    const s = save();
+    const owned: Record<string, number> = {};
+    for (const [id, n] of Object.entries(me.balances)) {
+        const p = tokenToPartId(Number(id));
+        if (p && n > 0) owned[p] = (owned[p] ?? 0) + n;
+    }
+    s.ownedParts = owned;
+    s.goo = me.gloo;
+    s.capsules.stored = me.eggs;
+    s.arena.highestTier = me.highestTier;
+    s.ftue = { step: 5, done: true };
+    if (me.registered) {
+        const eff = effectiveLoadout(me.loadout, me.balances);
+        const m = activeMonster();
+        m.parts = loadoutParts(eff);
+        if (!m.customName) m.name = autoName(m.parts);
+        accChoice = eff.acc;
+    }
+    commit();
+    store.patch({ me });
+}
+
+export async function refreshMe(): Promise<MeView> {
+    const me = await api.me();
+    applyMe(me);
+    return me;
+}
+
+/** After the wallet signed in: registered players go to the Lab (or a deep link), new ones to Register. */
+export async function afterSignIn(): Promise<void> {
+    const me = await refreshMe();
+    store.patch({ session: 'signedIn' });
+    if (!me.registered) {
+        store.patch({ phase: 'register' });
+        return;
+    }
+    routeHome();
+}
+
+function routeHome(): void {
+    const dl = store.get().deepLink;
+    enterLab();
+    if (dl.vs) store.patch({ phase: 'pvp', pendingCode: dl.vs, deepLink: { ...dl, vs: undefined } });
+    else if (dl.war) store.patch({ phase: 'war', warId: dl.war, deepLink: { ...dl, war: undefined } });
+}
+
+export async function register(username: string) {
+    const res = await api.register(username);
+    applyMe(res.me);
+    routeHome();
+    return res;
+}
+
+/** Loadout currently shown in the Lab, as token ids. */
+export function labLoadout(): Loadout {
+    const [h, b, l] = activeMonster().parts;
+    return { head: partToToken(h), body: partToToken(b), legs: partToToken(l), acc: accChoice };
+}
+
+export function labDirty(): boolean {
+    const me = store.get().me;
+    if (!me?.registered) return false;
+    const a = labLoadout();
+    const b = effectiveLoadout(me.loadout, me.balances);
+    return a.head !== b.head || a.body !== b.body || a.legs !== b.legs || a.acc !== b.acc;
+}
+
+/** S-04 first paint: read the lab from the chain, then show it (falls back to Register). */
+export async function loadLab(): Promise<MeView> {
+    const me = await refreshMe();
+    if (!me.registered) {
+        store.patch({ phase: 'register' });
+        return me;
+    }
+    const eff = effectiveLoadout(me.loadout, me.balances);
+    previewLoadout({ head: eff.head, body: eff.body, legs: eff.legs, acc: eff.acc });
+    store.patch({ phase: 'lab', battle: null, result: null, capsule: null });
+    playMusic('lab');
+    return me;
+}
+
+/** Show a loadout in the 3D lab without writing anything (Save is the only write). */
+export function previewLoadout(l: Loadout): void {
+    const lab = engine.lab();
+    if (!lab) {
+        engine.show((e) => e.lab()?.setMonster(loadoutParts(l), activeMonster().skin, false));
+        return;
+    }
+    lab.swapMonster(loadoutParts(l), activeMonster().skin);
+}
+
+export async function saveLoadout(loadout: Loadout = labLoadout()) {
+    const res = await api.setLoadout(loadout);
+    const me = store.get().me;
+    if (me) store.patch({ me: { ...me, loadout: res.loadout } });
+    // Mirror the saved parts into the local view-model so the Lab, Battle and
+    // Result screens agree without another round trip.
+    const m = activeMonster();
+    m.parts = loadoutParts(res.loadout);
+    accChoice = res.loadout.acc;
+    commit();
+    return res;
+}
+
+async function chainBattle(req: BattleRequest, enemyName: string): Promise<BattleView> {
+    const bv = await api.battle(req);
+    playChainBattle(bv, enemyName);
+    void refreshMe().catch(() => undefined);
+    return bv;
+}
+
+/**
+ * Animate a chain battle from its on-chain seed and loadout snapshots. The
+ * server's outcome stays authoritative for rewards; the local sim is only the
+ * picture. G5's `buildFighters`/`playBattle` replace the two helpers below as
+ * soon as `src/game/battlePlayer.ts` is on this branch.
+ */
+export function playChainBattle(bv: BattleView, enemyName: string, mode: BattleMode = bv.mode === 'pve' ? 'arena' : bv.mode === 'pvp' ? 'challenge' : 'war'): void {
+    stopAllSfx();
+    const myParts = loadoutParts(bv.attacker.loadout);
+    let enemy: { monster: Monster; parts: MonsterParts; name: string };
+    if (bv.mode === 'pve') {
+        const t = ARENA[Math.min(bv.defender.tier ?? 0, ARENA.length - 1)];
+        enemy = { monster: scaleMonster(buildMonster(t.parts), t.statMult), parts: t.parts, name: t.name };
+    } else {
+        const parts = loadoutParts(bv.defender.loadout ?? { head: 101, body: 102, legs: 103, acc: 0 });
+        enemy = { monster: buildMonster(parts), parts, name: enemyName };
+    }
+    const result = simulate(buildMonster(myParts), enemy.monster, bv.seed);
+    const myName = mode === 'replay' ? 'Attacker' : activeMonster().name;
+    store.patch({
+        phase: mode === 'replay' ? 'replay' : 'battle',
+        battleView: bv,
+        battle: { mode, tier: bv.defender.tier ?? 0, names: [myName, enemy.name], parts: [myParts, enemy.parts], maxHp: result.maxHp, winner: result.winner },
+        result: null,
+    });
+    // Element callouts: one per HP beat, in the order the scene plays them (F-16).
+    const plan = calloutPlan(result.events);
+    let beat = 0;
+    const offCallout = gameEvents.on('hp', () => emitCallout(plan[beat++] ?? null));
+    playMusic('battle');
+    const off = gameEvents.on('battleDone', () => {
+        off();
+        offCallout();
+        clearCallout();
+        if (mode === 'replay') return;
+        const won = bv.outcome.winner === 0;
+        store.patch({
+            phase: 'result',
+            result: { won, mode, capsule: bv.rewards.eggs > 0, goo: bv.rewards.gloo, trophyPart: null, newTier: null, tip: null },
+        });
+        sfx(won ? 'win' : 'lose');
+        haptic(won ? 'medium' : 'heavy');
+    });
+    engine.show((e) => {
+        e.battle({ parts: [myParts, enemy.parts], skins: [0, 0], events: result.events, enemyScale: 1 });
+    });
+}
+
+export const fightLevel = (tier: number) => chainBattle({ mode: 'pve', tier }, ARENA[tier]?.name ?? 'Monster');
+export const fightPvp = (code: string, name: string) => chainBattle({ mode: 'pvp', code }, name);
+export const fightWar = (warId: number, targetIdx: number, name: string) => chainBattle({ mode: 'war', warId, targetIdx }, name);
+
+/** Show the result panel for the battle already in the store (Skip / after a re-finalize). */
+export function showResult(): void {
+    if (store.get().battleView) store.patch({ phase: 'result' });
+}
+
+/** S-10 deep link: `?replay=<battleId>`. */
+export function openReplay(battleId: string): void {
+    store.patch({ phase: 'replay', replayId: battleId, deepLink: { ...store.get().deepLink, replay: battleId } });
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.set('replay', battleId);
+        window.history.replaceState({}, '', url.toString());
+    }
+}
+
+/**
+ * F-12 playback: animate a fight that was read back from Monad. Purely local —
+ * the sim result is the verifier's own recomputation, nothing is written.
+ */
+export function playReplayBattle(record: BattleRecord, sim: ReplaySim, names: [string, string]): void {
+    stopAllSfx();
+    const { parts, result } = sim;
+    store.patch({
+        phase: 'replay',
+        battleView: null,
+        result: null,
+        battle: {
+            mode: 'replay',
+            tier: record.mode === 0 ? Number(record.ref) : 0,
+            names,
+            parts,
+            maxHp: result.maxHp,
+            winner: result.winner,
+        },
+    });
+    const plan = calloutPlan(result.events);
+    let beat = 0;
+    const offCallout = gameEvents.on('hp', () => emitCallout(plan[beat++] ?? null));
+    playMusic('battle');
+    const off = gameEvents.on('battleDone', () => {
+        off();
+        offCallout();
+        clearCallout();
+    });
+    engine.show((e) => {
+        e.battle({ parts, skins: [0, 0], events: result.events, enemyScale: 1 });
+    });
+}
+
+/** Leave the replay screen: drop the deep link and go back to the title. */
+export function leaveReplay(): void {
+    store.patch({ deepLink: { ...store.get().deepLink, replay: undefined }, battle: null, result: null, replayId: null });
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('replay');
+        window.history.replaceState({}, '', url.toString());
+    }
+    enterTitle();
+}
+
+export async function finalizePending(): Promise<BattleView | null> {
+    const bv = store.get().battleView;
+    if (!bv) return null;
+    const next = await api.finalizeBattle(bv.battleId);
+    store.patch({ battleView: next });
+    void refreshMe().catch(() => undefined);
+    return next;
+}
+
+export function openPhase(phase: 'levels' | 'pvp' | 'community' | 'war' | 'redeem' | 'profile' | 'egg'): void {
+    store.patch({ phase });
+}
+
+// ───────────────────────── eggs (S-05) ─────────────────────────
+// Tap 1 opens the egg on chain (relayer → Pyth Entropy); the part arrives with
+// `EggHatched`, which we poll for until it lands (K4 swaps this for watchEgg).
+
+/** Price of one normal egg in Gloo (F-05, proposal). */
+export const EGG_PRICE_GLOO = 100;
+const EGG_POLL_MS = 500;
+const EGG_WAIT_NOTICE_MS = 2000;
+const EGG_GIVE_UP_MS = 60_000;
+
+export interface HatchResult {
+    sequence: string;
+    /** Absent while the Entropy callback has not landed yet (the egg stays pending). */
+    tokenId?: number;
+    rarity?: number;
+    txHash?: string;
+}
+
+/** Poll one sequence until it hatches, gives up after 60 s (Review Focus 3: the egg is never lost). */
+async function awaitHatch(sequence: string, onWaiting?: () => void): Promise<HatchResult> {
+    const started = Date.now();
+    let noticed = false;
+    for (;;) {
+        try {
+            const st = await api.eggStatus(sequence);
+            if (st.status === 'hatched') return { sequence, tokenId: st.tokenId, rarity: st.rarity, txHash: st.txHash };
+        } catch {
+            // Transient RPC/API hiccup: keep polling, the hatch is already on chain.
+        }
+        const waited = Date.now() - started;
+        if (!noticed && waited >= EGG_WAIT_NOTICE_MS) {
+            noticed = true;
+            onWaiting?.();
+        }
+        if (waited >= EGG_GIVE_UP_MS) return { sequence };
+        await sleep(EGG_POLL_MS);
+    }
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** S-05: open one egg and watch it hatch. */
+export async function openEgg(
+    eggType: 'normal' | 'rare' = 'normal',
+    hooks: { onRequested?: (sequence: string) => void; onWaiting?: () => void } = {},
+): Promise<HatchResult> {
+    const { sequence } = await api.openEgg(eggType);
+    hooks.onRequested?.(sequence);
+    void refreshMe().catch(() => undefined);
+    const res = await awaitHatch(sequence, hooks.onWaiting);
+    void refreshMe().catch(() => undefined);
+    return res;
+}
+
+/** F-05: buy eggs with Gloo (100 each). */
+export async function buyEgg(count = 1) {
+    const res = await api.buyEgg(count);
+    void refreshMe().catch(() => undefined);
+    return res;
+}
+
+/** Review Focus 3: an egg still hatching from a previous visit is resumed, never lost. */
+export async function resumePendingEggs(hooks: { onPending?: (sequence: string) => void; onWaiting?: () => void } = {}): Promise<HatchResult[]> {
+    const seqs = store.get().me?.pendingEggs ?? [];
+    const out: HatchResult[] = [];
+    for (const sequence of seqs) {
+        hooks.onPending?.(sequence);
+        out.push(await awaitHatch(sequence, hooks.onWaiting));
+    }
+    if (out.length) void refreshMe().catch(() => undefined);
+    return out;
 }

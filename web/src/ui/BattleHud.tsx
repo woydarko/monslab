@@ -1,20 +1,20 @@
 /**
- * Battle HUD (GDD §10.2): enemy bar on top, player bar at the bottom,
- * speed and skip after the first battle, floating numbers from game events.
+ * S-08 Battle HUD: enemy bar on top, player bar at the bottom, speed and skip,
+ * floating numbers from game events, and the element callout (F-16).
  */
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../state/store.ts';
 import { gameEvents, type FloatKind } from '../game/events.ts';
 import { setBattleSpeed, skipBattle } from '../game/actions.ts';
-import { useSave } from './bits.tsx';
 import { getPart } from '../game/data/parts.ts';
+import { useCallout } from './callouts.ts';
+import { usePrefersReducedMotion } from './motion.ts';
 import Icon from './Icon.tsx';
 import { useLayout } from './layout.ts';
 
 export default function BattleHud() {
     const battle = useStore((s) => s.battle);
     const phase = useStore((s) => s.phase);
-    const s = useSave();
     const [hp, setHp] = useState<[number, number]>(battle ? [...battle.maxHp] : [1, 1]);
     const [fast, setFast] = useState(false);
     const key = battle?.names.join('|');
@@ -27,13 +27,15 @@ export default function BattleHud() {
                 const next: [number, number] = [...cur];
                 next[side] = v;
                 return next;
-            })
+            }),
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [key]);
 
     const wide = useLayout() === 'wide';
-    const controls = s.ftue.done && phase === 'battle';
+    const controls = phase === 'battle';
+    /** Replays share the HUD (names, HP, callouts) but never the fight controls. */
+    const bars = phase === 'battle' || phase === 'replay';
     const toggleFast = () => {
         setBattleSpeed(fast ? 1 : 2);
         setFast(!fast);
@@ -50,7 +52,19 @@ export default function BattleHud() {
         return () => window.removeEventListener('keydown', h);
     });
 
-    if (!battle) return null;
+    // Starting state: the start tx / finalize tx are still in flight (never a blank screen).
+    if (!battle) {
+        if (phase !== 'battle') return null;
+        return (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="panel pointer-events-auto flex items-center gap-3 px-4 py-3" role="status" aria-live="polite">
+                    <span className="tx-spin" aria-hidden />
+                    <span className="t-body text-muted">Starting battle…</span>
+                </div>
+            </div>
+        );
+    }
+
     const speedButtons = controls && (
         <div className="flex justify-end gap-2">
             <button
@@ -85,6 +99,7 @@ export default function BattleHud() {
                         {speedButtons}
                     </div>
                 </div>
+                <CalloutLayer />
             </div>
         );
     }
@@ -95,12 +110,27 @@ export default function BattleHud() {
                 <HpBar name={battle.names[1]} head={battle.parts[1][0]} hp={hp[1]} max={battle.maxHp[1]} enemy />
                 {speedButtons}
             </div>
+            <CalloutLayer />
             <div className="flex-1" />
-            {phase === 'battle' && (
+            {bars && (
                 <div className="pb-safe-bottom px-4 pb-2">
                     <HpBar name={battle.names[0]} head={battle.parts[0][0]} hp={hp[0]} max={battle.maxHp[0]} />
                 </div>
             )}
+        </div>
+    );
+}
+
+/** "Super effective!" / "Resisted" (element clash, F-16). Fade only when motion is reduced. */
+export function CalloutLayer() {
+    const callout = useCallout();
+    const reduced = usePrefersReducedMotion();
+    if (!callout) return null;
+    return (
+        <div className="pointer-events-none absolute inset-x-0 top-1/3 flex justify-center px-4" role="status" aria-live="polite">
+            <span className={`t-num-lg text-center ${reduced ? '' : 'pop-in'} ${callout.tone === 'primary' ? 'text-primary' : 'text-muted'}`} style={{ textShadow: '0 4px 0 #140b20' }}>
+                {callout.text}
+            </span>
         </div>
     );
 }
@@ -155,15 +185,15 @@ const FLOAT_STYLE: Record<FloatKind, string> = {
 
 export function FloatLayer() {
     const [items, setItems] = useState<Floater[]>([]);
-    const nextId = useRef(0);
+    const nextIdRef = useRef(0);
     useEffect(
         () =>
             gameEvents.on('float', (e) => {
-                const id = nextId.current++;
+                const id = nextIdRef.current++;
                 setItems((cur) => [...cur.slice(-12), { id, ...e }]);
                 setTimeout(() => setItems((cur) => cur.filter((f) => f.id !== id)), 1000);
             }),
-        []
+        [nextIdRef],
     );
     return (
         <div className="pointer-events-none absolute inset-0" aria-hidden>

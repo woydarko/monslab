@@ -11,5 +11,6 @@
         "skipLibCheck": true,
         "isolatedModules": true
     },
-    "include": ["src", "server", "api"]
+    "include": ["src"],
+    "exclude": ["server", "api"]
 }

@@ -2,15 +2,19 @@
  * Tiny external store bridging game code and React, no state library.
  * Game code calls store.patch(); React subscribes with useStore(selector).
  *
- * UI-facing state only. Persistent progress lives in saveSystem.data; bump
- * `rev` (via actions.ts) whenever the save changes so screens re-render.
+ * UI-facing state only. Chain state arrives as `me` (MeView from /api/me) and is
+ * mirrored into the local save view-model by actions.ts; bump `rev` on change.
  */
 import { useSyncExternalStore } from 'react';
 import type { MonsterParts, Rarity } from '../game/data/types.ts';
+import type { BattleView, MeView } from '../../server/types.ts';
+import type { DeepLink } from '../ui/deepLink.ts';
 
-export type Phase = 'loading' | 'title' | 'lab' | 'arena' | 'challenge' | 'battle' | 'result' | 'capsule' | 'collection' | 'daily';
+export type Phase =
+    | 'loading' | 'title' | 'register' | 'lab' | 'egg' | 'levels' | 'pvp' | 'battle' | 'result'
+    | 'replay' | 'community' | 'war' | 'redeem' | 'profile' | 'collection';
 
-export type BattleMode = 'ftue' | 'arena' | 'challenge' | 'boss';
+export type BattleMode = 'ftue' | 'arena' | 'challenge' | 'boss' | 'war' | 'replay';
 
 export interface BattleUi {
     mode: BattleMode;
@@ -30,7 +34,6 @@ export interface ResultUi {
     trophyPart: string | null;
     newTier: number | null;
     tip: string | null;
-    /** Daily boss runs: the score and what is left today. */
     boss?: { score: number; best: number; newBest: boolean; triesLeft: number; name: string };
 }
 
@@ -43,6 +46,8 @@ export interface CapsuleUi {
     cracks: number;
 }
 
+export interface TxUi { label: string; status: 'pending' | 'confirmed' | 'failed'; hash?: string }
+
 export interface AppState {
     phase: Phase;
     loadProgress: number;
@@ -53,14 +58,20 @@ export interface AppState {
     result: ResultUi | null;
     capsule: CapsuleUi | null;
     /** Which lab slot's tray is open. */
-    traySlot: 'head' | 'body' | 'legs' | 'skin';
-    /** Part the FTUE pointer / "NEW" badge highlights. */
+    traySlot: 'head' | 'body' | 'legs' | 'acc' | 'skin';
+    /** Part the "NEW" badge highlights. */
     highlightPart: string | null;
     challengeTab: 'gallery' | 'send' | 'enter';
-    /** How to Play cards open (title screen or lab). */
     howTo: boolean;
     pendingCode: string | null;
     toast: string | null;
+    me: MeView | null;
+    session: 'signedOut' | 'signedIn';
+    tx: TxUi | null;
+    deepLink: DeepLink;
+    battleView: BattleView | null;
+    replayId: string | null;
+    warId: number | null;
 }
 
 const listeners = new Set<() => void>();
@@ -79,6 +90,13 @@ let state: AppState = {
     howTo: false,
     pendingCode: null,
     toast: null,
+    me: null,
+    session: 'signedOut',
+    tx: null,
+    deepLink: {},
+    battleView: null,
+    replayId: null,
+    warId: null,
 };
 
 export const store = {
@@ -102,4 +120,4 @@ export function useStore<T = AppState>(selector: (s: AppState) => T = (s) => s a
 }
 
 // Dev-only handle for debugging/screenshots in the browser console.
-if (import.meta.env.DEV) (window as unknown as { __store: typeof store }).__store = store;
+if (import.meta.env.DEV && typeof window !== 'undefined') (window as unknown as { __store: typeof store }).__store = store;

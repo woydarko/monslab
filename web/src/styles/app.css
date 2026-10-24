@@ -17,6 +17,21 @@
     --color-rare: #4cc9f0;
     --color-epic: #ffc300;
     --color-danger: #ff7a90;
+    --color-water: #3fa7ff;
+    --color-stone: #a89f91;
+    --color-fire: #ff7a3d;
+    --color-wind: #bfe9dd;
+    --color-nature: #6bcb77;
+    --color-volt: #ffe14d;
+    --color-claw: #f4a261;
+    --color-bone: #d9d2b6;
+    --color-shroom: #f15bb5;
+    --color-ghost: #9fffe0;
+
+    /* Weekly task tier markers (DESIGN_SYSTEM §Components: graphics only, never text). */
+    --color-bronze: #cd7f32;
+    --color-silver: #c0c0c0;
+    --color-gold: #ffc300;
 
     --font-display: "Lilita One", system-ui, sans-serif;
     --font-body: "Nunito", system-ui, sans-serif;
@@ -287,4 +302,25 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .attention, .pop-in, .slide-up, .hand, .blink { animation: none; }
     .scene-fade { animation-duration: 0.12s; }
+}
+
+/* Tx pending spinner + Verified stamp (chain status). */
+.tx-spin { width: 12px; height: 12px; border: 2px solid var(--color-muted); border-top-color: var(--color-primary); border-radius: 50%; animation: tx-spin 0.8s linear infinite; }
+@keyframes tx-spin { to { transform: rotate(360deg); } }
+
+/* Replay badge stamps onto the screen (DESIGN_SYSTEM §8 motion.pop, 280 ms). */
+.stamp { animation: stamp 0.28s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes stamp { from { transform: scale(1.6) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.lock-flash { animation: lock-flash 0.15s ease-out; }
+@keyframes lock-flash { from { box-shadow: 0 0 0 4px var(--color-primary); } to { box-shadow: none; } }
+@media (prefers-reduced-motion: reduce) {
+    .tx-spin { animation-duration: 2.4s; }
+    .stamp, .lock-flash { animation: none; }
+}
+
+/* Egg: a slow wobble while it waits for taps (motion.egg, DESIGN_SYSTEM §8). */
+.egg-wobble { animation: egg-wobble 1.2s ease-in-out infinite; }
+@keyframes egg-wobble { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) {
+    .egg-wobble { animation: none; }
 }

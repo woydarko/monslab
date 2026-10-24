@@ -1,0 +1,5 @@
+{
+    "extends": "./tsconfig.json",
+    "include": ["server", "api", "src/game", "src/chain", "src/vite-env.d.ts"],
+    "exclude": ["src/wallet", "src/ui"]
+}

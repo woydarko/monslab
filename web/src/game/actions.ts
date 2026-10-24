@@ -540,10 +540,40 @@ export function labDirty(): boolean {
     return a.head !== b.head || a.body !== b.body || a.legs !== b.legs || a.acc !== b.acc;
 }
 
-export async function saveLoadout() {
-    const res = await api.setLoadout(labLoadout());
+/** S-04 first paint: read the lab from the chain, then show it (falls back to Register). */
+export async function loadLab(): Promise<MeView> {
+    const me = await refreshMe();
+    if (!me.registered) {
+        store.patch({ phase: 'register' });
+        return me;
+    }
+    const eff = effectiveLoadout(me.loadout, me.balances);
+    previewLoadout({ head: eff.head, body: eff.body, legs: eff.legs, acc: eff.acc });
+    store.patch({ phase: 'lab', battle: null, result: null, capsule: null });
+    playMusic('lab');
+    return me;
+}
+
+/** Show a loadout in the 3D lab without writing anything (Save is the only write). */
+export function previewLoadout(l: Loadout): void {
+    const lab = engine.lab();
+    if (!lab) {
+        engine.show((e) => e.lab()?.setMonster(loadoutParts(l), activeMonster().skin, false));
+        return;
+    }
+    lab.swapMonster(loadoutParts(l), activeMonster().skin);
+}
+
+export async function saveLoadout(loadout: Loadout = labLoadout()) {
+    const res = await api.setLoadout(loadout);
     const me = store.get().me;
     if (me) store.patch({ me: { ...me, loadout: res.loadout } });
+    // Mirror the saved parts into the local view-model so the Lab, Battle and
+    // Result screens agree without another round trip.
+    const m = activeMonster();
+    m.parts = loadoutParts(res.loadout);
+    accChoice = res.loadout.acc;
+    commit();
     return res;
 }
 

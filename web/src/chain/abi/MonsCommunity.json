@@ -1,0 +1,1206 @@
+[
+  {
+    "type": "function",
+    "name": "acceptWar",
+    "inputs": [
+      {
+        "name": "leader",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "warId",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "activeWarOf",
+    "inputs": [
+      {
+        "name": "cid",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "claimWarReward",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "warId",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimWeekly",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "week",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "task",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "tier",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "communityCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "communityOf",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "create",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "cid",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "currentWeek",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "declareWar",
+    "inputs": [
+      {
+        "name": "leader",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "targetCid",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCommunity",
+    "inputs": [
+      {
+        "name": "cid",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct CommunityView",
+        "components": [
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "leader",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "members",
+            "type": "address[]",
+            "internalType": "address[]"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getWar",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct WarView",
+        "components": [
+          {
+            "name": "a",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "b",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "expiresAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "endsAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "team",
+            "type": "address[5][2]",
+            "internalType": "address[5][2]"
+          },
+          {
+            "name": "loadouts",
+            "type": "uint64[5][2]",
+            "internalType": "uint64[5][2]"
+          },
+          {
+            "name": "lockedBy",
+            "type": "address[5][2]",
+            "internalType": "address[5][2]"
+          },
+          {
+            "name": "lockedUntil",
+            "type": "uint64[5][2]",
+            "internalType": "uint64[5][2]"
+          },
+          {
+            "name": "done",
+            "type": "bool[5][2]",
+            "internalType": "bool[5][2]"
+          },
+          {
+            "name": "stars",
+            "type": "uint8[5][2]",
+            "internalType": "uint8[5][2]"
+          },
+          {
+            "name": "attacked",
+            "type": "bool[5][2]",
+            "internalType": "bool[5][2]"
+          },
+          {
+            "name": "teamSize",
+            "type": "uint8[2]",
+            "internalType": "uint8[2]"
+          },
+          {
+            "name": "starsA",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "starsB",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "winner",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "join",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "cid",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "leave",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "lockTarget",
+    "inputs": [
+      {
+        "name": "attacker",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "warId",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "targetIdx",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "onEggOpened",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "onPvpWin",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "familyMask",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "onWarBattleResult",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "attacker",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "targetIdx",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "stars",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "hpPctBps",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "battleId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "onWarBattleStart",
+    "inputs": [
+      {
+        "name": "attacker",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "warId",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "targetIdx",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "target",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "atkLoadout",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "defLoadout",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "params",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct CommunityParams",
+        "components": [
+          {
+            "name": "maxMembers",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "weekGenesis",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "weekLength",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "themeTiers",
+            "type": "uint32[3]",
+            "internalType": "uint32[3]"
+          },
+          {
+            "name": "hatchTiers",
+            "type": "uint32[3]",
+            "internalType": "uint32[3]"
+          },
+          {
+            "name": "warAcceptWindow",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "warDuration",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "lockDuration",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "warEggReward",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setParams",
+    "inputs": [
+      {
+        "name": "p",
+        "type": "tuple",
+        "internalType": "struct CommunityParams",
+        "components": [
+          {
+            "name": "maxMembers",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "weekGenesis",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "weekLength",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "themeTiers",
+            "type": "uint32[3]",
+            "internalType": "uint32[3]"
+          },
+          {
+            "name": "hatchTiers",
+            "type": "uint32[3]",
+            "internalType": "uint32[3]"
+          },
+          {
+            "name": "warAcceptWindow",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "warDuration",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "lockDuration",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "warEggReward",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setWeeklyTheme",
+    "inputs": [
+      {
+        "name": "week",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "family",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "settleWar",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "themeOf",
+    "inputs": [
+      {
+        "name": "week",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "warCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "weekEndsAt",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "weeklyView",
+    "inputs": [
+      {
+        "name": "week",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "cid",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "progress",
+        "type": "uint32[2]",
+        "internalType": "uint32[2]"
+      },
+      {
+        "name": "contribution",
+        "type": "uint32[2]",
+        "internalType": "uint32[2]"
+      },
+      {
+        "name": "claimedMask",
+        "type": "uint8[2]",
+        "internalType": "uint8[2]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "CommunityCreated",
+    "inputs": [
+      {
+        "name": "cid",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "leader",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MemberJoined",
+    "inputs": [
+      {
+        "name": "cid",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MemberLeft",
+    "inputs": [
+      {
+        "name": "cid",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TargetLocked",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "side",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "targetIdx",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "attacker",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "lockedUntil",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ThemeSet",
+    "inputs": [
+      {
+        "name": "week",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "family",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WarAccepted",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "endsAt",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "teamA",
+        "type": "address[5]",
+        "indexed": false,
+        "internalType": "address[5]"
+      },
+      {
+        "name": "teamB",
+        "type": "address[5]",
+        "indexed": false,
+        "internalType": "address[5]"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WarAttackResult",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "side",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "targetIdx",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "attacker",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "stars",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "hpPctBps",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "battleId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WarDeclared",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "a",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "b",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "expiresAt",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WarRewardClaimed",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WarSettled",
+    "inputs": [
+      {
+        "name": "warId",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "winnerCid",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "starsA",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      },
+      {
+        "name": "starsB",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WeeklyClaimed",
+    "inputs": [
+      {
+        "name": "week",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "cid",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "task",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "tier",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WeeklyProgress",
+    "inputs": [
+      {
+        "name": "week",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "cid",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "task",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "total",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AlreadyClaimed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AlreadyInCommunity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "CommunityFull",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Cooldown",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidName",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "LeaderCannotLeave",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NameTaken",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoAttackLeft",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoContribution",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotInCommunity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotLeader",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotLockedByYou",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotRegistered",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotRelayer",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotTeamMember",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotWinner",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SameCommunity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "TargetDone",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "TargetTaken",
+    "inputs": [
+      {
+        "name": "lockedBy",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "TierNotReached",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnknownCommunity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnknownWar",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WarActive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WarExpired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WarNotActive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WarNotOver",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WarNotPending",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WeekNotClaimable",
+    "inputs": []
+  }
+]

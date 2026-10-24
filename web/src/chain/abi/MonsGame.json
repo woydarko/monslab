@@ -1,0 +1,1489 @@
+[
+  {
+    "type": "function",
+    "name": "activeDropIds",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "battleCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "battles",
+    "inputs": [
+      {
+        "name": "battleId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct BattleView",
+        "components": [
+          {
+            "name": "mode",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "simVersion",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "seed",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "startedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "attacker",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "defender",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "ref",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "atkLoadout",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "defLoadout",
+            "type": "uint64",
+            "internalType": "uint64"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "brainOf",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "buyEgg",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "count",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "codeOwner",
+    "inputs": [
+      {
+        "name": "code",
+        "type": "bytes6",
+        "internalType": "bytes6"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "community",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createDrop",
+    "inputs": [
+      {
+        "name": "dropId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "codeHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "startsAt",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "endsAt",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "maxClaims",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "dayOf",
+    "inputs": [
+      {
+        "name": "ts",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "drops",
+    "inputs": [
+      {
+        "name": "dropId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct Drop",
+        "components": [
+          {
+            "name": "codeHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "tokenId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "startsAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "endsAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "maxClaims",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "claimed",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "entropyFee",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint128",
+        "internalType": "uint128"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "familyMaskOf",
+    "inputs": [
+      {
+        "name": "loadout",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "finalizeBattle",
+    "inputs": [
+      {
+        "name": "battleId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "o",
+        "type": "tuple",
+        "internalType": "struct Outcome",
+        "components": [
+          {
+            "name": "winner",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "actions",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "hpLeftA",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "hpLeftB",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "maxHpA",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "maxHpB",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "resultHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "fulfillEggBackend",
+    "inputs": [
+      {
+        "name": "sequence",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "random",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getPlayer",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct PlayerView",
+        "components": [
+          {
+            "name": "registered",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "username",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "code",
+            "type": "bytes6",
+            "internalType": "bytes6"
+          },
+          {
+            "name": "brain",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "gloo",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "eggs",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "rareEggs",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "pendingEggs",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "highestTier",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "glooToday",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "pvpEggsToday",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "loadout",
+            "type": "uint64",
+            "internalType": "uint64"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "grantEggs",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "normal",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "rare",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "loadoutOf",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "openEgg",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "eggType",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "sequence",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "params",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct Params",
+        "components": [
+          {
+            "name": "eggPrice",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "glooBase",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "glooPerTier",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "glooDailyCap",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainStart",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainWin",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainLose",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainDefLose",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainDefWin",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "pvpEggCap",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "battleTtl",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "dayOffset",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "pendingEgg",
+    "inputs": [
+      {
+        "name": "sequence",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "eggType",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "randomSource",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "redeem",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "dropId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "code",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "redeemed",
+    "inputs": [
+      {
+        "name": "dropId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "register",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "username",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "code",
+        "type": "bytes6",
+        "internalType": "bytes6"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setCommunity",
+    "inputs": [
+      {
+        "name": "community_",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setDropWindow",
+    "inputs": [
+      {
+        "name": "dropId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "startsAt",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "endsAt",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setLoadout",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "head",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "body",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "legs",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "acc",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setParams",
+    "inputs": [
+      {
+        "name": "p",
+        "type": "tuple",
+        "internalType": "struct Params",
+        "components": [
+          {
+            "name": "eggPrice",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "glooBase",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "glooPerTier",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "glooDailyCap",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainStart",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainWin",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainLose",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainDefLose",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "brainDefWin",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "pvpEggCap",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "battleTtl",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "dayOffset",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setRandomSource",
+    "inputs": [
+      {
+        "name": "source",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setSimVersion",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "simVersion",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "snapshotLoadout",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "startBattle",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "mode",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "ref",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "battleId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "seed",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "usernameOwner",
+    "inputs": [
+      {
+        "name": "usernameHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "withdraw",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address payable"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "BattleFinalized",
+    "inputs": [
+      {
+        "name": "battleId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "winner",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "actions",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      },
+      {
+        "name": "hpLeftA",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "hpLeftB",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "maxHpA",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "maxHpB",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "resultHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "BattleStarted",
+    "inputs": [
+      {
+        "name": "battleId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "attacker",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "defender",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "mode",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "ref",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "atkLoadout",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "defLoadout",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "seed",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "simVersion",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "BrainChanged",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "brain",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DropCreated",
+    "inputs": [
+      {
+        "name": "dropId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "startsAt",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "endsAt",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "maxClaims",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "EggHatched",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "sequence",
+        "type": "uint64",
+        "indexed": true,
+        "internalType": "uint64"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "rarity",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "EggRequested",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "sequence",
+        "type": "uint64",
+        "indexed": true,
+        "internalType": "uint64"
+      },
+      {
+        "name": "eggType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "EggsBought",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "count",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "glooSpent",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LoadoutSet",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "loadout",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Redeemed",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "dropId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Registered",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "username",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "code",
+        "type": "bytes6",
+        "indexed": false,
+        "internalType": "bytes6"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RewardGranted",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "battleId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "gloo",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "eggs",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "brainDelta",
+        "type": "int32",
+        "indexed": false,
+        "internalType": "int32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AlreadyFinalized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AlreadyRedeemed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AlreadyRegistered",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "BadResultHash",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "BadSimVersion",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "BattleExpired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "CodeTaken",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "CommunityAlreadySet",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "DropClosed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "DropNotStarted",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "DropSoldOut",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InsufficientFee",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InsufficientGloo",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidCode",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidMode",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidUsername",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoEgg",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotOwner",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NotRegistered",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotRelayer",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SelfBattle",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "TierLocked",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnknownBattle",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnknownEgg",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnknownPlayer",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UsernameTaken",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WindowLocked",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WrongSlot",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  }
+]

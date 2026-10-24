@@ -1,0 +1,7 @@
+{
+  "name": "monslab-contracts",
+  "private": true,
+  "dependencies": {
+    "@pythnetwork/entropy-sdk-solidity": "2.2.1"
+  }
+}

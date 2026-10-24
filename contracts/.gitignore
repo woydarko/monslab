@@ -1,5 +1,5 @@
 out/
 cache/
 node_modules/
-broadcast/*/dry-run/
+broadcast/**/dry-run/
 .env

@@ -53,6 +53,7 @@ contract MonsGame is AccessControl, ReentrancyGuard, IEntropyConsumer, IMonsGame
     uint256 public battleCount;
     mapping(uint256 => Drop) internal _drops;
     mapping(uint256 => mapping(address => bool)) public redeemed;
+    mapping(uint256 => bool) internal tokenDropped;
     uint256[] internal dropIds;
     Params internal _params;
     uint16 public simVersion = 1;
@@ -185,7 +186,11 @@ contract MonsGame is AccessControl, ReentrancyGuard, IEntropyConsumer, IMonsGame
     }
 
     function fulfillEggBackend(uint64 sequence, bytes32 random) external onlyRole(RELAYER_ROLE) {
-        if (randomSource != MonsTypes.RANDOM_BACKEND || _pendingEgg[sequence].player == address(0)) {
+        // only backend-issued sequences: a pending Entropy request must not take a relayer-chosen random
+        if (
+            randomSource != MonsTypes.RANDOM_BACKEND || sequence < BACKEND_SEQ_BASE
+                || _pendingEgg[sequence].player == address(0)
+        ) {
             revert UnknownEgg();
         }
         _hatch(sequence, random);
@@ -278,7 +283,7 @@ contract MonsGame is AccessControl, ReentrancyGuard, IEntropyConsumer, IMonsGame
         bytes32 h = keccak256(
             abi.encode(battleId, b.seed, o.winner, o.actions, o.hpLeftA, o.hpLeftB, o.maxHpA, o.maxHpB)
         );
-        if (o.winner > 1 || h != o.resultHash) revert BadResultHash();
+        if (o.winner > 1 || h != o.resultHash || o.hpLeftA > o.maxHpA || o.hpLeftB > o.maxHpB) revert BadResultHash();
 
         b.status = 2;
         emit BattleFinalized(battleId, o.winner, o.actions, o.hpLeftA, o.hpLeftB, o.maxHpA, o.maxHpB, h);
@@ -353,7 +358,11 @@ contract MonsGame is AccessControl, ReentrancyGuard, IEntropyConsumer, IMonsGame
         uint64 endsAt,
         uint32 maxClaims
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (_drops[dropId].tokenId != 0 || tokenId == 0 || endsAt <= startsAt) revert WindowLocked();
+        // a token gets exactly one drop window, so a closed window cannot be reopened under a new dropId
+        if (_drops[dropId].tokenId != 0 || tokenId == 0 || endsAt <= startsAt || tokenDropped[tokenId]) {
+            revert WindowLocked();
+        }
+        tokenDropped[tokenId] = true;
         _drops[dropId] = Drop(codeHash, tokenId, startsAt, endsAt, maxClaims, 0);
         dropIds.push(dropId);
         emit DropCreated(dropId, tokenId, startsAt, endsAt, maxClaims);

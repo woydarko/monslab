@@ -56,7 +56,7 @@ contract MonsGameRedeemTest is Fixture {
     }
 
     function test_redeem_soldOut() public {
-        game.createDrop(2, keccak256(bytes("ONE")), 201, startsAt, endsAt, 1);
+        game.createDrop(2, keccak256(bytes("ONE")), 202, startsAt, endsAt, 1);
         vm.warp(startsAt);
         vm.startPrank(relayer);
         game.redeem(alice, 2, "ONE");
@@ -93,6 +93,12 @@ contract MonsGameRedeemTest is Fixture {
     function test_createDrop_existingReverts() public {
         vm.expectRevert(IMonsGame.WindowLocked.selector);
         game.createDrop(1, keccak256(bytes("X")), 201, startsAt, endsAt, 5);
+    }
+
+    function test_createDrop_reusedTokenReverts() public {
+        vm.warp(endsAt + 1); // first window closed: a second drop for the same token must not reopen it
+        vm.expectRevert(IMonsGame.WindowLocked.selector);
+        game.createDrop(2, keccak256(bytes("AGAIN")), 201, endsAt + 10, endsAt + 100, 5);
     }
 
     function test_noMintPathAfterEnd() public {

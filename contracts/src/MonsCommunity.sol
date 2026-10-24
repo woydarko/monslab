@@ -45,6 +45,9 @@ contract MonsCommunity is AccessControl, IMonsCommunity {
         bool[TEAM][2] attacked;
         uint8[2] teamSize;
         uint8[2] doneCount;
+        uint8 started; // war battles started
+        uint8 resulted; // war battles that reached onWarBattleResult
+        uint64 lastStartAt;
         uint16 starsA;
         uint16 starsB;
         uint32 hpA;
@@ -74,6 +77,8 @@ contract MonsCommunity is AccessControl, IMonsCommunity {
     uint32 public warCount;
     mapping(uint32 => uint32) internal _activeWarOf;
     mapping(uint32 => mapping(address => bool)) public warRewardClaimed;
+    /// enemy target idx + 1 that an attacker locked last in a war: one live lock per attacker
+    mapping(uint32 => mapping(address => uint8)) internal heldLock;
 
     constructor(address admin, IMonsGame game_, IMonsParts parts_, CommunityParams memory p) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
@@ -209,6 +214,15 @@ contract MonsCommunity is AccessControl, IMonsCommunity {
         if (t.lockedBy != address(0) && t.lockedBy != attacker && t.lockedUntil >= block.timestamp) {
             revert TargetTaken(t.lockedBy);
         }
+        uint8 prev = heldLock[warId][attacker];
+        if (prev != 0 && prev - 1 != targetIdx) {
+            Target storage old = w.targets[1 - side][prev - 1];
+            if (old.lockedBy == attacker) {
+                old.lockedBy = address(0);
+                old.lockedUntil = 0;
+            }
+        }
+        heldLock[warId][attacker] = targetIdx + 1;
         t.lockedBy = attacker;
         t.lockedUntil = uint64(block.timestamp) + _params.lockDuration;
         emit TargetLocked(warId, 1 - side, targetIdx, attacker, t.lockedUntil);
@@ -226,6 +240,8 @@ contract MonsCommunity is AccessControl, IMonsCommunity {
         Target storage t = _target(w, 1 - side, targetIdx);
         if (t.lockedBy != attacker || t.lockedUntil < block.timestamp) revert NotLockedByYou();
         w.attacked[side][idx] = true;
+        w.started += 1;
+        w.lastStartAt = uint64(block.timestamp);
         t.lockedUntil = uint64(block.timestamp) + game.params().battleTtl;
         return (t.player, w.loadouts[side][idx], w.loadouts[1 - side][targetIdx]);
     }
@@ -240,6 +256,7 @@ contract MonsCommunity is AccessControl, IMonsCommunity {
     ) external onlyRole(GAME_ROLE) {
         War storage w = _war(warId);
         if (w.status != WAR_ACTIVE) return; // settled while the battle was running: result ignored
+        w.resulted += 1;
         (uint8 side,) = _member(w, attacker);
         uint8 ts = 1 - side;
         Target storage t = w.targets[ts][targetIdx];
@@ -262,7 +279,7 @@ contract MonsCommunity is AccessControl, IMonsCommunity {
     function settleWar(uint32 warId) external {
         War storage w = _war(warId);
         if (w.status != WAR_ACTIVE) revert WarNotActive();
-        if (block.timestamp < w.endsAt && !_allAttacksDone(w)) revert WarNotOver();
+        if (!_allAttacksDone(w) && !_timeUp(w)) revert WarNotOver();
         w.status = WAR_SETTLED;
         if (w.starsA != w.starsB) w.winner = w.starsA > w.starsB ? w.a : w.b;
         else if (w.hpA != w.hpB) w.winner = w.hpA > w.hpB ? w.a : w.b;
@@ -429,6 +446,12 @@ contract MonsCommunity is AccessControl, IMonsCommunity {
         if (idx >= w.teamSize[side]) revert NotTeamMember();
         t = w.targets[side][idx];
         if (t.done) revert TargetDone();
+    }
+
+    /// endsAt passed and no battle can still land a result: all results are in, or the last battle's TTL ended.
+    function _timeUp(War storage w) internal view returns (bool) {
+        if (block.timestamp < w.endsAt) return false;
+        return w.started == w.resulted || block.timestamp > w.lastStartAt + game.params().battleTtl;
     }
 
     function _allAttacksDone(War storage w) internal view returns (bool) {

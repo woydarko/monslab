@@ -1,0 +1,322 @@
+[
+  {
+    "atk": "28429410741190656",
+    "def": null,
+    "tier": 0,
+    "seed": 1,
+    "battleId": "1",
+    "outcome": {
+      "winner": 0,
+      "actions": 7,
+      "hpLeftA": 165,
+      "hpLeftB": 0,
+      "maxHpA": 181,
+      "maxHpB": 38
+    },
+    "resultHash": "0x4e27eac0c7ea79379be528b84cf09b03db936b818d633efde1b5fe77ad4818e0"
+  },
+  {
+    "atk": "281496452923392",
+    "def": null,
+    "tier": 5,
+    "seed": 2,
+    "battleId": "2",
+    "outcome": {
+      "winner": 0,
+      "actions": 9,
+      "hpLeftA": 85,
+      "hpLeftB": 0,
+      "maxHpA": 117,
+      "maxHpB": 114
+    },
+    "resultHash": "0x325e726f688a19ccc664234cd736dabdd8d7656953db92b13f4e841c278de7b7"
+  },
+  {
+    "atk": "5348046033518793",
+    "def": null,
+    "tier": 10,
+    "seed": 42,
+    "battleId": "3",
+    "outcome": {
+      "winner": 1,
+      "actions": 11,
+      "hpLeftA": 0,
+      "hpLeftB": 35,
+      "maxHpA": 143,
+      "maxHpB": 79
+    },
+    "resultHash": "0xb2b05321590eb6642bd1d571bd8e8eb3784b00761818e1040b53ee6ca40893e5"
+  },
+  {
+    "atk": "3659221942468608",
+    "def": null,
+    "tier": 0,
+    "seed": 4095,
+    "battleId": "4",
+    "outcome": {
+      "winner": 0,
+      "actions": 3,
+      "hpLeftA": 92,
+      "hpLeftB": 0,
+      "maxHpA": 104,
+      "maxHpB": 38
+    },
+    "resultHash": "0x374783599eb9a4432368c78f7295a4d304a3e9bc9403505dabd29a0f94c5ebfb"
+  },
+  {
+    "atk": "1970359197302987",
+    "def": null,
+    "tier": 5,
+    "seed": 2841937721,
+    "battleId": "5",
+    "outcome": {
+      "winner": 0,
+      "actions": 8,
+      "hpLeftA": 24,
+      "hpLeftB": 0,
+      "maxHpA": 61,
+      "maxHpB": 114
+    },
+    "resultHash": "0xdc2c6f43b117106ec46d15b50531774c39fa39fee36054816467285b65afb157"
+  },
+  {
+    "atk": "28429410741190656",
+    "def": null,
+    "tier": 10,
+    "seed": 7,
+    "battleId": "6",
+    "outcome": {
+      "winner": 0,
+      "actions": 11,
+      "hpLeftA": 45,
+      "hpLeftB": 0,
+      "maxHpA": 181,
+      "maxHpB": 79
+    },
+    "resultHash": "0x8ab8fef08f3409d80c50b6f8345197137c6acd4230d3f12d57dfd9035a984987"
+  },
+  {
+    "atk": "281496452923392",
+    "def": null,
+    "tier": 0,
+    "seed": 99991,
+    "battleId": "7",
+    "outcome": {
+      "winner": 0,
+      "actions": 1,
+      "hpLeftA": 117,
+      "hpLeftB": 0,
+      "maxHpA": 117,
+      "maxHpB": 38
+    },
+    "resultHash": "0xa36687554ad5ee86ae4c8f96486a2c1615af9704ad066e3b0af2a601e1ed631e"
+  },
+  {
+    "atk": "5348046033518793",
+    "def": null,
+    "tier": 5,
+    "seed": 31337,
+    "battleId": "8",
+    "outcome": {
+      "winner": 0,
+      "actions": 8,
+      "hpLeftA": 63,
+      "hpLeftB": 0,
+      "maxHpA": 143,
+      "maxHpB": 114
+    },
+    "resultHash": "0xed1eef835880ca51aa7d8926e8015083a540706be0c74a4636b1c2bbb8427eae"
+  },
+  {
+    "atk": "3659221942468608",
+    "def": null,
+    "tier": 10,
+    "seed": 123456789,
+    "battleId": "9",
+    "outcome": {
+      "winner": 1,
+      "actions": 9,
+      "hpLeftA": 0,
+      "hpLeftB": 42,
+      "maxHpA": 104,
+      "maxHpB": 79
+    },
+    "resultHash": "0xbc215340955a89de7cba0e2571ea9a14cdecb04cab775cc626ccc65cfd4cffe8"
+  },
+  {
+    "atk": "1970359197302987",
+    "def": null,
+    "tier": 0,
+    "seed": 4294967295,
+    "battleId": "10",
+    "outcome": {
+      "winner": 0,
+      "actions": 3,
+      "hpLeftA": 50,
+      "hpLeftB": 0,
+      "maxHpA": 61,
+      "maxHpB": 38
+    },
+    "resultHash": "0x0f85462b43b020153a454ce77871c95bd6ae9937de18fd886d5d0f807a425e52"
+  },
+  {
+    "atk": "28429410741190656",
+    "def": null,
+    "tier": 5,
+    "seed": 1,
+    "battleId": "11",
+    "outcome": {
+      "winner": 1,
+      "actions": 16,
+      "hpLeftA": 0,
+      "hpLeftB": 69,
+      "maxHpA": 181,
+      "maxHpB": 114
+    },
+    "resultHash": "0x04016b6418d08b24caba1105c88130e5ff1d8dfd24041f96e2b8a00612acaa3b"
+  },
+  {
+    "atk": "281496452923392",
+    "def": null,
+    "tier": 10,
+    "seed": 2,
+    "battleId": "12",
+    "outcome": {
+      "winner": 1,
+      "actions": 14,
+      "hpLeftA": 0,
+      "hpLeftB": 11,
+      "maxHpA": 117,
+      "maxHpB": 79
+    },
+    "resultHash": "0x5a84bfeb9a58bf9d99fde5f4d5ff5999092b0ce411d47ac75a4303d7ef2aa22f"
+  },
+  {
+    "atk": "28429410741190656",
+    "def": "5348046033518793",
+    "tier": null,
+    "seed": 4095,
+    "battleId": "13",
+    "outcome": {
+      "winner": 1,
+      "actions": 21,
+      "hpLeftA": 0,
+      "hpLeftB": 44,
+      "maxHpA": 181,
+      "maxHpB": 143
+    },
+    "resultHash": "0xe9d69a271ace50677828d11597ef703bfd7a8de39c13ba59fd5e1d189e395793"
+  },
+  {
+    "atk": "281496452923392",
+    "def": "3659221942468608",
+    "tier": null,
+    "seed": 2841937721,
+    "battleId": "14",
+    "outcome": {
+      "winner": 1,
+      "actions": 9,
+      "hpLeftA": 0,
+      "hpLeftB": 11,
+      "maxHpA": 117,
+      "maxHpB": 104
+    },
+    "resultHash": "0x6d2a11a0b15a3268157a13b356da5bfb61c2142a173a956d88a66d6ddb219263"
+  },
+  {
+    "atk": "5348046033518793",
+    "def": "1970359197302987",
+    "tier": null,
+    "seed": 7,
+    "battleId": "15",
+    "outcome": {
+      "winner": 0,
+      "actions": 10,
+      "hpLeftA": 16,
+      "hpLeftB": 0,
+      "maxHpA": 143,
+      "maxHpB": 61
+    },
+    "resultHash": "0x5bfae8ad7a6b96753028a6968c7f0a76122d5ce2b6db2f447a5960939475675f"
+  },
+  {
+    "atk": "3659221942468608",
+    "def": "28429410741190656",
+    "tier": null,
+    "seed": 99991,
+    "battleId": "16",
+    "outcome": {
+      "winner": 0,
+      "actions": 10,
+      "hpLeftA": 44,
+      "hpLeftB": 0,
+      "maxHpA": 104,
+      "maxHpB": 181
+    },
+    "resultHash": "0x8a56a9fa20cf7202ae4f45bf936c0beb6a29256673c4f6ae867c2a34b282f0e2"
+  },
+  {
+    "atk": "1970359197302987",
+    "def": "281496452923392",
+    "tier": null,
+    "seed": 31337,
+    "battleId": "17",
+    "outcome": {
+      "winner": 1,
+      "actions": 7,
+      "hpLeftA": 0,
+      "hpLeftB": 7,
+      "maxHpA": 61,
+      "maxHpB": 117
+    },
+    "resultHash": "0x4cecce4c6bc0157f18e5a4b20a38ea0988886e9a3a8210b0140a070821a77d07"
+  },
+  {
+    "atk": "28429410741190656",
+    "def": "5348046033518793",
+    "tier": null,
+    "seed": 123456789,
+    "battleId": "18",
+    "outcome": {
+      "winner": 1,
+      "actions": 17,
+      "hpLeftA": 0,
+      "hpLeftB": 68,
+      "maxHpA": 181,
+      "maxHpB": 143
+    },
+    "resultHash": "0xc394d77f4982d006866a1ea605db8ba55b0b7773069f438ce50541da9cbb5a0e"
+  },
+  {
+    "atk": "281496452923392",
+    "def": "3659221942468608",
+    "tier": null,
+    "seed": 4294967295,
+    "battleId": "19",
+    "outcome": {
+      "winner": 1,
+      "actions": 12,
+      "hpLeftA": 0,
+      "hpLeftB": 6,
+      "maxHpA": 117,
+      "maxHpB": 104
+    },
+    "resultHash": "0x9b910f723d028012ed0fcec1c82040ece44d5d98b572ff7f42c23ca05ce0cede"
+  },
+  {
+    "atk": "5348046033518793",
+    "def": "1970359197302987",
+    "tier": null,
+    "seed": 1,
+    "battleId": "20",
+    "outcome": {
+      "winner": 1,
+      "actions": 9,
+      "hpLeftA": 0,
+      "hpLeftB": 10,
+      "maxHpA": 143,
+      "maxHpB": 61
+    },
+    "resultHash": "0x272073f772728cce2895b9d0c2977967c57839545e8f6ed70341d910e222aa7c"
+  }
+]

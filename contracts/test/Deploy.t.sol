@@ -5,6 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {Deploy} from "../script/Deploy.s.sol";
 import {MonsParts} from "../src/MonsParts.sol";
 import {MonsGame} from "../src/MonsGame.sol";
+import {MonsCommunity} from "../src/MonsCommunity.sol";
 import {MockEntropy} from "../src/test-helpers/MockEntropy.sol";
 
 contract DeployTest is Test {
@@ -21,13 +22,21 @@ contract DeployTest is Test {
             dropStartsAt: uint64(block.timestamp + 60),
             dropEndsAt: uint64(block.timestamp + 1 days),
             slots: d.readSlots(),
-            rarities: d.readRarities()
+            rarities: d.readRarities(),
+            weekLength: 900,
+            warDuration: 300
         });
-        (MonsParts parts, MonsGame game) = d.deploy(cfg);
+        (MonsParts parts, MonsGame game, MonsCommunity community) = d.deploy(cfg);
 
         assertTrue(parts.hasRole(parts.MINTER_ROLE(), address(game)));
+        assertTrue(parts.hasRole(parts.MINTER_ROLE(), address(community)));
+        assertTrue(game.hasRole(game.COMMUNITY_ROLE(), address(community)));
+        assertTrue(community.hasRole(community.GAME_ROLE(), address(game)));
+        assertEq(game.community(), address(community));
+        assertEq(community.params().weekLength, 900);
         for (uint256 i; i < relayers.length; ++i) {
             assertTrue(game.hasRole(game.RELAYER_ROLE(), relayers[i]));
+            assertTrue(community.hasRole(community.RELAYER_ROLE(), relayers[i]));
         }
         assertEq(game.drops(1).tokenId, 201);
         assertEq(game.drops(1).codeHash, keccak256(bytes("BLITZJOGJA")));

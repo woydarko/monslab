@@ -84,21 +84,25 @@ function crown(kit: Kit): THREE.Group {
 function trail(kit: Kit): THREE.Group {
     const group = new THREE.Group();
     const meshes: THREE.Mesh[] = [];
-    const slime = mat(tinted(PALETTE.slime, kit.tint));
+    // Same slime token as the goo parts, shaded down a step: the parts get their
+    // depth from a blotch texture, an untextured blob would blow out under the light.
+    const slime = mat(tinted(PALETTE.slime, kit.tint).multiplyScalar(0.7));
 
-    const puddle = mesh(blobGeo(0.26, 1, 0.16, kit.seed + 71, new THREE.Vector3(1.3, 0.25, 1.2)), slime, meshes);
-    puddle.position.y = 0.02;
+    const puddle = mesh(blobGeo(0.3, 1, 0.16, kit.seed + 71, new THREE.Vector3(1.5, 0.22, 1.2)), slime, meshes);
+    puddle.position.set(0, 0.02, -0.16);
     group.add(puddle);
 
     const blobs: { mesh: THREE.Mesh; baseY: number; phase: number }[] = [];
+    // Spread sideways as well as back, so the trail still reads from a 3/4 view.
     const spots: [number, number, number][] = [
-        [-0.14, -0.3, 0.13],
-        [0.16, -0.46, 0.1],
-        [0, -0.62, 0.08],
+        [-0.34, -0.2, 0.13],
+        [0.36, -0.34, 0.15],
+        [-0.12, -0.52, 0.11],
+        [0.2, -0.6, 0.09],
     ];
     spots.forEach(([x, z, r], i) => {
         const b = mesh(blobGeo(r, 1, 0.2, kit.seed + 80 + i), slime, meshes);
-        b.position.set(x, 0.04 + r * 0.6, z);
+        b.position.set(x, 0.02 + r * 0.55, z);
         group.add(b);
         blobs.push({ mesh: b, baseY: b.position.y, phase: i * 1.9 });
     });
@@ -106,7 +110,7 @@ function trail(kit: Kit): THREE.Group {
     return tag(group, 202, 'legs', (t) => {
         puddle.scale.set(1 + Math.sin(t * 2.4) * 0.08, 1, 1 + Math.cos(t * 2.4) * 0.08);
         for (const b of blobs) {
-            b.mesh.position.y = b.baseY + Math.sin(t * 3 + b.phase) * 0.06;
+            b.mesh.position.y = b.baseY + Math.sin(t * 3 + b.phase) * 0.05;
             b.mesh.scale.setScalar(1 + Math.sin(t * 2.2 + b.phase) * 0.12);
         }
     });
@@ -119,8 +123,10 @@ function orb(kit: Kit): THREE.Group {
     const core = makePsxMaterial({ color: PALETTE.brand, emissive: PALETTE.brand, emissiveIntensity: 0.45, flat: false });
     const sparkle = mat(PALETTE.accent);
 
+    // The group hangs on the head top, so the pivot sits half a head lower: the
+    // orb circles the skull, not the air above it.
     const pivot = new THREE.Group();
-    pivot.position.y = 0.35;
+    pivot.position.y = -0.5;
     group.add(pivot);
 
     const ball = mesh(blobGeo(0.16, 1, 0.06, kit.seed + 91), core, meshes);
@@ -133,7 +139,7 @@ function orb(kit: Kit): THREE.Group {
 
     return tag(group, 203, 'head', (t) => {
         pivot.rotation.y = t * 1.6;
-        pivot.position.y = 0.35 + Math.sin(t * 2.1) * 0.05;
+        pivot.position.y = -0.5 + Math.sin(t * 2.1) * 0.05;
         ball.scale.setScalar(1 + Math.sin(t * 4) * 0.05);
         shard.rotation.y = -t * 2.4;
     });

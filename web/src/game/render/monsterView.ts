@@ -68,7 +68,6 @@ export class MonsterView {
     private readonly seed: number;
     /** Head top / hip height in body space — where accessories hang. */
     private headTop = 0;
-    private hipY = 0;
     private acc: THREE.Group | null = null;
     private accToken = 0;
     /** 0..1: drives attack poses in part animations. */
@@ -106,7 +105,6 @@ export class MonsterView {
             head.group.position.copy(neck).add(new THREE.Vector3(0, legH, 0));
             this.body.add(legs.group, body.group, head.group);
             this.height = legH + neck.y + 0.95;
-            this.hipY = legH;
             // Measure the real head so a tall skull and a flat blob both wear the crown.
             this.body.updateMatrixWorld(true);
             this.headTop = new THREE.Box3().setFromObject(head.group).max.y;
@@ -165,7 +163,8 @@ export class MonsterView {
         const group = buildAccessory(next, { seed: this.seed, tint: this.tint });
         if (!group) return;
         const data = group.userData as AccessoryUserData;
-        if (data.anchor === 'legs') group.position.set(0, this.hipY * 0.3, -0.5);
+        // Trail drags on the floor behind the feet; head pieces hang on the skull.
+        if (data.anchor === 'legs') group.position.set(0, 0.02, -0.72);
         else group.position.set(0, this.headTop, 0);
         this.body.add(group);
         this.acc = group;

@@ -89,7 +89,7 @@ describe('buildAccessory', () => {
         (orb.userData as AccessoryUserData).update(1.2);
         const at1 = centreOf(orb);
         expect(at0.distanceTo(at1)).toBeGreaterThan(0.1); // it actually moves
-        expect(at1.y).toBeGreaterThan(0); // stays beside the head, never under the floor
+        expect(Math.abs(at1.y)).toBeLessThan(0.8); // beside the head, not off on its own
     });
 
     it('bobs the trail blobs over time without drifting away', () => {

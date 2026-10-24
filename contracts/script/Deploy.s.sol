@@ -35,7 +35,8 @@ contract Deploy is Script {
         Config memory cfg = Config({
             admin: msg.sender,
             entropy: vm.envOr("ENTROPY_ADDRESS", PYTH_ENTROPY_V2),
-            relayers: vm.envAddress("RELAYER_ADDRESSES", ","),
+            // relayers optional: admin can grantRole(RELAYER_ROLE) later on both contracts
+            relayers: vm.envOr("RELAYER_ADDRESSES", ",", new address[](0)),
             codeHash: bytes(code).length == 0 ? bytes32(0) : keccak256(bytes(code)),
             dropStartsAt: startsAt,
             dropEndsAt: uint64(vm.envOr("DROP_ENDS_AT", uint256(startsAt) + 1 days)),

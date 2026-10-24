@@ -33,7 +33,7 @@ contract Deploy is Script {
         // shortcut: default window starts in 1 day so the owner can still move it with setDropWindow
         uint64 startsAt = uint64(vm.envOr("DROP_STARTS_AT", block.timestamp + 1 days));
         Config memory cfg = Config({
-            admin: msg.sender,
+            admin: address(0), // set to broadcaster below
             entropy: vm.envOr("ENTROPY_ADDRESS", PYTH_ENTROPY_V2),
             // relayers optional: admin can grantRole(RELAYER_ROLE) later on both contracts
             relayers: vm.envOr("RELAYER_ADDRESSES", ",", new address[](0)),
@@ -49,6 +49,8 @@ contract Deploy is Script {
         uint256 deployBlock = block.number;
 
         vm.startBroadcast();
+        // msg.sender before startBroadcast is forge's default sender under --account; use the broadcaster
+        (, cfg.admin,) = vm.readCallers();
         (MonsParts parts, MonsGame game,) = _deploy(cfg);
         vm.stopBroadcast();
 

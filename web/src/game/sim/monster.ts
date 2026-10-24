@@ -3,7 +3,7 @@
  */
 import { getPart, PARTS } from '../data/parts.ts';
 import { FAMILIES, MIX_BONUS, SET_BONUS } from '../data/families.ts';
-import type { AttackStyle, FamilyId, MonsterParts, SlotId, Stats, TraitId } from '../data/types.ts';
+import type { AttackStyle, ElementId, FamilyId, MonsterParts, SlotId, Stats, TraitId } from '../data/types.ts';
 
 /** Every monster gets this on top of its parts so fragile builds stay viable. */
 const BASE: Stats = { hp: 20, atk: 0, spd: 0 };
@@ -24,6 +24,10 @@ export interface Monster {
     /** From the HEAD: how this monster attacks and what its special is called. */
     style: AttackStyle;
     special: string;
+    /** Elements from the HEAD (normal attacks), BODY (defense) and LEGS (special attacks). */
+    atkEl: [ElementId, ElementId];
+    defEl: [ElementId, ElementId];
+    spEl: [ElementId, ElementId];
 }
 
 export function buildMonster(parts: MonsterParts): Monster {
@@ -72,7 +76,10 @@ export function buildMonster(parts: MonsterParts): Monster {
     if (traits.includes('float')) dodgeChance += 0.1;
 
     const attack = defs[0].attack ?? { style: 'bite' as const, special: 'Big Hit' };
-    return { parts, stats, eyes, critChance, dodgeChance, traits, bonus, style: attack.style, special: attack.special };
+    return {
+        parts, stats, eyes, critChance, dodgeChance, traits, bonus, style: attack.style, special: attack.special,
+        atkEl: defs[0].elements, defEl: defs[1].elements, spEl: defs[2].elements,
+    };
 }
 
 /** Scale HP/ATK/SPD for AI opponents (arena tiers). */

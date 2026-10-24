@@ -10,7 +10,9 @@
         "test": "vitest run",
         "gen:parts": "node scripts/gen-parts.ts",
         "gen:vectors": "node scripts/gen-vectors.ts",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "balance:check": "node scripts/balance-check.ts",
+        "fit:arena": "node scripts/fit-arena.ts"
     },
     "dependencies": {
         "react": "19.2.4",

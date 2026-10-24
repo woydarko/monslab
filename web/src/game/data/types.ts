@@ -1,4 +1,7 @@
 /** Shared data types for parts, families and monsters (GDD §3). */
+import type { ElementId } from './elements.ts';
+
+export type { ElementId };
 
 export type SlotId = 'head' | 'body' | 'legs';
 export type FamilyId = 'fang' | 'goo' | 'eye' | 'claw' | 'bone' | 'shroom' | 'ghost';
@@ -47,6 +50,8 @@ export interface PartDef {
     rarity: Rarity;
     name: string;
     stats: Stats;
+    /** Two distinct, non-opposite elements (F-16). Head = attack, body = defense, legs = special. */
+    elements: [ElementId, ElementId];
     traits: TraitId[];
     /** Eyes this part contributes (crit = 3% per eye, GDD §3.3). */
     eyes: number;

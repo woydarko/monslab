@@ -8,6 +8,7 @@
 import { mulberry32 } from './rng.ts';
 import type { Monster } from './monster.ts';
 import type { AttackStyle } from '../data/types.ts';
+import { clashMult, clashScore } from './clash.ts';
 
 export type Side = 0 | 1;
 
@@ -44,6 +45,8 @@ export interface AttackEvent {
     poisoned: boolean;
     /** Haunt lowered the target's ATK (current stack count, 0 = none applied). */
     haunt: number;
+    /** Element clash score used for this strike (−4..4; damage × 1 + 0.25 × score). */
+    clash: number;
 }
 
 export type BattleEvent =
@@ -166,6 +169,7 @@ export function simulate(a: Monster, b: Monster, seed: number): BattleResult {
         const att = f[actor];
         const def = f[target];
         const special = !followUp && att.ownActions % SPECIAL_EVERY === 0;
+        const clash = clashScore(special ? att.m.spEl : att.m.atkEl, def.m.defEl);
 
         const dodged = rng() < def.m.dodgeChance;
         const roll = 0.9 + rng() * 0.2;
@@ -185,6 +189,7 @@ export function simulate(a: Monster, b: Monster, seed: number): BattleResult {
             if (crit) dmg *= CRIT_MULT;
             if (special) dmg *= SPECIAL_MULT;
             if (followUp) dmg *= FRENZY_MULT;
+            dmg *= clashMult(clash);
             if (has(att, 'pounce') && att.ownActions === 1 && !followUp) dmg *= POUNCE_MULT;
             if (has(att, 'hunter') && def.hp < def.m.stats.hp * 0.5) dmg *= HUNTER_MULT;
             if (has(def, 'squish')) dmg *= 0.85;
@@ -223,7 +228,7 @@ export function simulate(a: Monster, b: Monster, seed: number): BattleResult {
         events.push({
             type: 'attack', actor, target, style: att.m.style, special, specialName: special ? att.m.special : '',
             followUp, damage, crit, dodged, blocked, targetHp: def.hp, heal, actorHp: att.hp,
-            slowed, resisted, stunned, poisoned, haunt,
+            slowed, resisted, stunned, poisoned, haunt, clash,
         });
     };
 

@@ -460,6 +460,68 @@ contract MonsCommunityWarTest is CommunityFixture {
         assertEq(community.getWar(warId).status, 2);
     }
 
+    function test_lock_secondLockReleasesFirst() public {
+        uint32 warId = _war();
+        _lock(ta[6], warId, 0);
+        _lock(ta[6], warId, 1);
+        _lock(ta[5], warId, 0); // free again for a teammate
+        assertEq(community.getWar(warId).lockedBy[1][0], ta[5]);
+        vm.expectRevert(abi.encodeWithSelector(IMonsCommunity.TargetTaken.selector, ta[6]));
+        vm.prank(relayer);
+        community.lockTarget(ta[5], warId, 1);
+    }
+
+    function test_lock_sameTargetRenewKeepsLock() public {
+        uint32 warId = _war();
+        _lock(ta[6], warId, 2);
+        vm.warp(block.timestamp + 100);
+        _lock(ta[6], warId, 2);
+        assertEq(community.getWar(warId).lockedBy[1][2], ta[6]);
+        assertEq(community.getWar(warId).lockedUntil[1][2], block.timestamp + 120);
+    }
+
+    function test_lock_releaseDoesNotClobberNewHolder() public {
+        uint32 warId = _war();
+        _lock(ta[6], warId, 0);
+        vm.warp(block.timestamp + 121);
+        _lock(ta[5], warId, 0); // ta[6]'s lock expired, ta[5] holds target 0
+        _lock(ta[6], warId, 1); // must not release ta[5]'s lock
+        assertEq(community.getWar(warId).lockedBy[1][0], ta[5]);
+    }
+
+    function _startLateWarBattle(uint32 warId) internal returns (uint256 id, uint32 seed) {
+        vm.warp(block.timestamp + 290);
+        _lock(ta[6], warId, 2);
+        vm.warp(block.timestamp + 9); // 1 s before endsAt
+        vm.prank(relayer);
+        (id, seed) = game.startBattle(ta[6], 2, (uint256(warId) << 8) | 2);
+        vm.warp(block.timestamp + 1); // endsAt reached
+    }
+
+    function test_settle_waitsForInFlightBattle() public {
+        uint32 warId = _war();
+        (uint256 id, uint32 seed) = _startLateWarBattle(warId);
+        vm.expectRevert(IMonsCommunity.WarNotOver.selector);
+        community.settleWar(warId);
+        vm.prank(relayer);
+        game.finalizeBattle(id, _outcome(id, seed, 0));
+        community.settleWar(warId);
+        assertEq(community.getWar(warId).starsA, 1);
+        assertEq(community.getWar(warId).winner, a);
+    }
+
+    function test_settle_afterBattleTtlWhenNeverFinalized() public {
+        uint32 warId = _war();
+        _startLateWarBattle(warId);
+        vm.warp(block.timestamp + 299); // exactly startedAt + ttl
+        vm.expectRevert(IMonsCommunity.WarNotOver.selector);
+        community.settleWar(warId); // finalize is still possible at startedAt + ttl
+        vm.warp(block.timestamp + 1);
+        community.settleWar(warId);
+        assertEq(community.getWar(warId).status, 2);
+        assertEq(community.getWar(warId).winner, 0);
+    }
+
     function test_claimReward_winnerOnce() public {
         (uint32 warId, address pa, address pb) = _duel(50);
         _lock(pa, warId, 0);

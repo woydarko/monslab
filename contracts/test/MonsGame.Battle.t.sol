@@ -226,13 +226,12 @@ contract MonsGameBattleTest is Fixture {
     }
 
     function test_resultHash_matchesVector() public pure {
-        // encoding order locked: (uint256 battleId, uint32 seed, uint8 winner, uint16 actions, uint32 hpLeftA,
-        // uint32 hpLeftB, uint32 maxHpA, uint32 maxHpB); replace with the TS constant once G2 lands
-        bytes32 h = keccak256(
-            abi.encode(uint256(1), uint32(2841937721), uint8(0), uint16(17), uint32(42), uint32(0), uint32(108), uint32(95))
-        );
+        // cross-language vector posted by agent-platform (2026-10-24 11:22 +0700);
+        // encoding order: (uint256 battleId, uint32 seed, uint8 winner, uint16 actions, uint32 hpLeftA,
+        // uint32 hpLeftB, uint32 maxHpA, uint32 maxHpB)
+        bytes32 expected = 0xc9bd0cccdaee2381dca37bcb952e8601000fbf6ade735ca2e88a74554c4e4535;
         Outcome memory o =
             Outcome({winner: 0, actions: 17, hpLeftA: 42, hpLeftB: 0, maxHpA: 108, maxHpB: 95, resultHash: 0});
-        assertEq(_hash(1, 2841937721, o), h);
+        assertEq(_hash(1, 2841937721, o), expected);
     }
 }

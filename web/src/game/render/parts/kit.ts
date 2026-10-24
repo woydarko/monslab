@@ -28,7 +28,13 @@ export interface PartBuild {
     meshes: THREE.Mesh[];
 }
 
-export type PartBuilder = (opts: { seed: number; tint: THREE.Color }) => PartBuild;
+/** Everything a procedural builder needs: a deterministic seed and the skin tint. */
+export interface Kit {
+    seed: number;
+    tint: THREE.Color;
+}
+
+export type PartBuilder = (opts: Kit) => PartBuild;
 
 /** Tint helper: multiply a base hex by the skin tint. */
 export function tinted(base: number, tint: THREE.Color): THREE.Color {

@@ -45,4 +45,6 @@ export const PALETTE = {
     flesh: 0x9b5de5,
     blood: 0xe63946,
     chitin: 0x5a4878,
+    /** Brand purple (#836EF9, DESIGN_SYSTEM §7): accessory crown, UI accents. */
+    brand: 0x836ef9,
 } as const;

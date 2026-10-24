@@ -98,14 +98,17 @@ export class LabScene implements PsxScene {
         });
     }
 
-    /** Show (or swap to) a monster. `mix` plays the birth pop + swirl. */
-    setMonster(parts: MonsterParts, skin: number, mix = false): void {
+    /** Show (or swap to) a monster. `mix` plays the birth pop + swirl; `acc` is the cosmetic slot token. */
+    setMonster(parts: MonsterParts, skin: number, mix = false, acc = 0): void {
         // Same monster already on the pedestal (title → lab): keep it, no re-spawn.
-        if (!mix && !this.egg && this.monster && this.monster.parts.join() === parts.join() && this.monsterSkin === skin) return;
+        if (!mix && !this.egg && this.monster && this.monster.parts.join() === parts.join() && this.monsterSkin === skin) {
+            this.monster.setAccessory(acc);
+            return;
+        }
         this.monsterSkin = skin;
         this.clearEgg();
         this.monster?.dispose();
-        this.monster = new MonsterView(parts, skin);
+        this.monster = new MonsterView(parts, skin, 0, undefined, acc);
         this.monster.root.position.y = PEDESTAL_TOP;
         this.monster.lookAt(this.camera.position);
         this.scene.add(this.monster.root);

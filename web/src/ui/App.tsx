@@ -7,7 +7,7 @@ import { store, useStore, type Phase } from '../state/store.ts';
 import LoadingScreen from './LoadingScreen.tsx';
 import GameCanvas from '../game/GameCanvas.tsx';
 import LabScreen from './LabScreen.tsx';
-import ArenaSheet from './ArenaSheet.tsx';
+import LevelsSheet from './LevelsSheet.tsx';
 import CollectionSheet from './CollectionSheet.tsx';
 import BattleHud from './BattleHud.tsx';
 import ResultPanel from './ResultPanel.tsx';
@@ -70,7 +70,7 @@ function Frame() {
                         {phase === 'title' && <TitleScreen />}
                         {phase === 'register' && <RegisterDialog />}
                         {inLab && <LabScreen />}
-                        {phase === 'levels' && <ArenaSheet />}
+                        {phase === 'levels' && <LevelsSheet />}
                         {phase === 'collection' && <CollectionSheet />}
                         {(phase === 'pvp' || phase === 'community' || phase === 'war' || phase === 'redeem' || phase === 'profile' || phase === 'replay') && (
                             <Placeholder phase={phase} />

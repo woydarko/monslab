@@ -1,76 +1,123 @@
-/** Result (GDD §10.3, §22.4): the outcome, what you got, and one obvious next step. */
+/**
+ * S-09 Result: the outcome, what you got, and one obvious next step.
+ * Reads the `BattleView` the API returned, so rewards, both tx hashes and the
+ * "Result pending" state are exactly what the chain said.
+ */
+import { useState } from 'react';
 import { useStore } from '../state/store.ts';
-import { DAILY_CAPSULE_WINS, EGG_PRICE, enterLab, openCapsule, openArena, startArenaBattle } from '../game/actions.ts';
-import { getPart } from '../game/data/parts.ts';
-import { MAX_SLICE_TIER } from '../game/data/arena.ts';
-import { GooIcon, PartIcon, useSave } from './bits.tsx';
+import { backToLab, fightLevel, finalizePending, openPhase, openReplay } from '../game/actions.ts';
+import { useAction } from './useAction.ts';
+import { usePrefersReducedMotion } from './motion.ts';
+import TxChip from './TxChip.tsx';
 import Icon from './Icon.tsx';
 import { useLayout } from './layout.ts';
 
 export default function ResultPanel() {
-    const r = useStore((s) => s.result);
+    const bv = useStore((s) => s.battleView);
     const battle = useStore((s) => s.battle);
-    const s = useSave();
     const wide = useLayout() === 'wide';
-    if (!r || !battle) return null;
-    const ftue = !s.ftue.done;
-    const nextTier = Math.min(MAX_SLICE_TIER, s.arena.highestTier + 1);
-    const hasRewards = r.capsule || r.goo > 0 || !!r.trophyPart || r.newTier !== null;
+    const reduced = usePrefersReducedMotion();
+    const againAction = useAction('again', 'Fight again');
+    const retryFinalize = useAction('finalize', 'Finalize');
+    const [retried, setRetried] = useState(false);
+
+    if (!bv || !battle) return null;
+
+    const won = bv.outcome.winner === 0;
+    const pve = bv.mode === 'pve';
+    const tier = bv.defender.tier ?? battle.tier;
+    const pending = bv.status === 'finalize_pending';
+    const cappedGloo = pve && won && bv.rewards.gloo === 0;
+    const cappedEggs = bv.mode === 'pvp' && won && bv.rewards.eggs === 0;
+
+    const retry = () =>
+        void retryFinalize.run(async () => {
+            const next = await finalizePending();
+            setRetried(!!next && next.status === 'final');
+            return next;
+        });
 
     return (
         <div
             className={
                 wide
-                    ? 'pointer-events-auto absolute bottom-8 left-1/2 flex w-[440px] -translate-x-1/2 flex-col items-center gap-3'
+                    ? 'pointer-events-auto absolute bottom-8 left-1/2 flex w-[460px] -translate-x-1/2 flex-col items-center gap-3'
                     : 'pb-safe-bottom pointer-events-auto absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pb-6'
             }
         >
-                <h2 className={`t-banner pop-in text-center ${r.won ? 'text-primary' : 'text-danger'}`} style={{ textShadow: '0 5px 0 #140b20', WebkitTextStroke: '2px #140b20' }}>
-                    {r.won ? 'VICTORY!' : 'DEFEAT'}
-                </h2>
-            {(hasRewards || r.tip) && (
-                <div className="panel pop-in flex w-full flex-col gap-2 px-4 py-3" style={{ animationDelay: '0.08s' }}>
-                    {r.capsule && (
-                        <Row
-                            icon={<Icon name="egg" className="text-primary" />}
-                            text="Spooky Egg"
-                            note={ftue ? '' : `${s.capsules.winsToday}/${DAILY_CAPSULE_WINS} today`}
-                        />
-                    )}
-                    {r.goo > 0 && <Row icon={<GooIcon />} text={`+${r.goo} Goo`} note={`Daily eggs used up. ${EGG_PRICE} Goo buys one.`} />}
-                    {r.trophyPart && (
-                        <Row icon={<PartIcon id={r.trophyPart} size={36} />} text={getPart(r.trophyPart).name} note="Stolen from their monster" />
-                    )}
-                    {r.newTier !== null && <Row icon={<Icon name="trophy" className="text-epic" />} text={`Arena tier ${r.newTier} cleared`} note={r.newTier === MAX_SLICE_TIER ? 'Bonus epic egg added' : ''} />}
-                    {r.tip && (
-                        <p className="t-body flex items-start gap-2 text-ink">
-                            <Icon name="help" size={20} className="mt-0.5 text-epic" />
-                            {r.tip}
-                        </p>
-                    )}
-                </div>
-            )}
+            <h2
+                className={`t-banner text-center ${won ? 'text-primary' : 'text-danger'} ${reduced ? '' : 'pop-in'}`}
+                style={{ textShadow: '0 5px 0 #140b20', WebkitTextStroke: '2px #140b20' }}
+            >
+                {won ? 'VICTORY' : 'DEFEAT'}
+            </h2>
+
+            <div className={`panel flex w-full flex-col gap-2 px-4 py-3 ${reduced ? '' : 'pop-in'}`}>
+                {bv.rewards.gloo > 0 && <Row icon={<Icon name="flask" className="text-goo" />} text={`+${bv.rewards.gloo} Gloo`} note="" />}
+                {bv.rewards.eggs > 0 && <Row icon={<Icon name="egg" className="text-primary" />} text={`+${bv.rewards.eggs} Egg`} note="" />}
+                {bv.rewards.brainDelta !== 0 && (
+                    <Row
+                        icon={<Icon name="skull" className={bv.rewards.brainDelta > 0 ? 'text-primary' : 'text-danger'} />}
+                        text={`${bv.rewards.brainDelta > 0 ? '+' : ''}${bv.rewards.brainDelta} Brain`}
+                        note=""
+                    />
+                )}
+                {typeof bv.rewards.stars === 'number' && <Row icon={<Icon name="trophy" className="text-epic" />} text={`${bv.rewards.stars} stars`} note="" />}
+                {cappedGloo && <p className="t-caption text-muted">Gloo cap reached for today</p>}
+                {cappedEggs && <p className="t-caption text-muted">PvP egg limit reached for today</p>}
+                {!won && <p className="t-body text-ink">Try another mix of parts and fight again.</p>}
+            </div>
 
             <div className="flex w-full flex-col gap-2">
-                {r.capsule ? (
-                    <button type="button" autoFocus className="btn btn-primary btn-lg attention w-full" onClick={openCapsule}>
-                        <span className="t-button-lg">OPEN EGG</span>
-                    </button>
-                ) : r.mode === 'arena' ? (
+                <TxChip label="Battle start" status="confirmed" hash={bv.txStart} />
+                {pending ? (
+                    <div className="flex items-center justify-between gap-2">
+                        <TxChip label="Result pending" status="failed" />
+                        <button type="button" className="btn btn-secondary btn-md" disabled={retryFinalize.pending} onClick={retry}>
+                            <span className="t-button">{retryFinalize.pending ? 'Retrying…' : 'Retry'}</span>
+                        </button>
+                    </div>
+                ) : (
+                    bv.txFinal && <TxChip label="Battle final" status="confirmed" hash={bv.txFinal} />
+                )}
+                {retryFinalize.error && (
+                    <p className="t-caption flex items-center gap-2 text-danger" role="alert">
+                        <Icon name="close" size={16} />
+                        {retryFinalize.error}
+                    </p>
+                )}
+                {retried && <p className="t-caption text-primary">Result confirmed on Monad.</p>}
+                {againAction.error && (
+                    <p className="t-caption flex items-center gap-2 text-danger" role="alert">
+                        <Icon name="close" size={16} />
+                        {againAction.error}
+                    </p>
+                )}
+            </div>
+
+            <div className="flex w-full flex-col gap-2">
+                <button
+                    type="button"
+                    autoFocus
+                    className="btn btn-primary btn-lg w-full"
+                    disabled={retryFinalize.pending}
+                    onClick={() => openReplay(bv.battleId)}
+                >
+                    <span className="t-button-lg">Replay</span>
+                </button>
+                <div className="grid grid-cols-2 gap-2">
                     <button
                         type="button"
-                        autoFocus
-                        className="btn btn-primary btn-lg w-full"
-                        onClick={() => (r.won ? openArena() : startArenaBattle(battle.tier))}
+                        className="btn btn-secondary btn-md w-full"
+                        disabled={againAction.pending}
+                        onClick={() => (pve ? void againAction.run(() => fightLevel(tier)) : openPhase('pvp'))}
                     >
-                        <span className="t-button-lg">{r.won ? (s.arena.highestTier >= MAX_SLICE_TIER ? 'ARENA' : `TIER ${nextTier}`) : 'TRY AGAIN'}</span>
+                        <span className="t-button">{pve ? (againAction.pending ? 'Starting…' : 'Again') : 'PvP'}</span>
                     </button>
-                ) : null}
-                {!r.capsule && (
-                    <button type="button" className="btn btn-secondary btn-md w-full" onClick={() => enterLab()}>
-                        <span className="t-button">BACK TO LAB</span>
+                    <button type="button" className="btn btn-secondary btn-md w-full" onClick={backToLab}>
+                        <span className="t-button">Back to Lab</span>
                     </button>
-                )}
+                </div>
             </div>
         </div>
     );

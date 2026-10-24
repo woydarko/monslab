@@ -18,6 +18,8 @@ import { playMusic, sfx, stopAllSfx } from './audio.ts';
 import { wibDayKey } from './time.ts';
 import { api } from '../chain/api.ts';
 import { effectiveLoadout } from '../ui/effectiveLoadout.ts';
+import { calloutPlan } from '../ui/battleCallout.ts';
+import { clearCallout, emitCallout } from '../ui/callouts.ts';
 import type { BattleRequest, BattleView, Loadout, MeView } from '../../server/types.ts';
 
 export const DAILY_CAPSULE_WINS = 5;
@@ -572,7 +574,12 @@ async function chainBattle(req: BattleRequest, enemyName: string): Promise<Battl
     return bv;
 }
 
-/** Animate a chain battle locally from its on-chain seed and loadouts (replay uses mode 'replay'). */
+/**
+ * Animate a chain battle from its on-chain seed and loadout snapshots. The
+ * server's outcome stays authoritative for rewards; the local sim is only the
+ * picture. G5's `buildFighters`/`playBattle` replace the two helpers below as
+ * soon as `src/game/battlePlayer.ts` is on this branch.
+ */
 export function playChainBattle(bv: BattleView, enemyName: string, mode: BattleMode = bv.mode === 'pve' ? 'arena' : bv.mode === 'pvp' ? 'challenge' : 'war'): void {
     stopAllSfx();
     const myParts = loadoutParts(bv.attacker.loadout);
@@ -584,7 +591,6 @@ export function playChainBattle(bv: BattleView, enemyName: string, mode: BattleM
         const parts = loadoutParts(bv.defender.loadout ?? { head: 101, body: 102, legs: 103, acc: 0 });
         enemy = { monster: buildMonster(parts), parts, name: enemyName };
     }
-    // shortcut: plain simulate() until G5 buildFighters/playBattle land; server outcome stays authoritative for rewards.
     const result = simulate(buildMonster(myParts), enemy.monster, bv.seed);
     const myName = mode === 'replay' ? 'Attacker' : activeMonster().name;
     store.patch({
@@ -593,9 +599,15 @@ export function playChainBattle(bv: BattleView, enemyName: string, mode: BattleM
         battle: { mode, tier: bv.defender.tier ?? 0, names: [myName, enemy.name], parts: [myParts, enemy.parts], maxHp: result.maxHp, winner: result.winner },
         result: null,
     });
+    // Element callouts: one per HP beat, in the order the scene plays them (F-16).
+    const plan = calloutPlan(result.events);
+    let beat = 0;
+    const offCallout = gameEvents.on('hp', () => emitCallout(plan[beat++] ?? null));
     playMusic('battle');
     const off = gameEvents.on('battleDone', () => {
         off();
+        offCallout();
+        clearCallout();
         if (mode === 'replay') return;
         const won = bv.outcome.winner === 0;
         store.patch({
@@ -613,6 +625,21 @@ export function playChainBattle(bv: BattleView, enemyName: string, mode: BattleM
 export const fightLevel = (tier: number) => chainBattle({ mode: 'pve', tier }, ARENA[tier]?.name ?? 'Monster');
 export const fightPvp = (code: string, name: string) => chainBattle({ mode: 'pvp', code }, name);
 export const fightWar = (warId: number, targetIdx: number, name: string) => chainBattle({ mode: 'war', warId, targetIdx }, name);
+
+/** Show the result panel for the battle already in the store (Skip / after a re-finalize). */
+export function showResult(): void {
+    if (store.get().battleView) store.patch({ phase: 'result' });
+}
+
+/** S-10 deep link: `?replay=<battleId>`. */
+export function openReplay(battleId: string): void {
+    store.patch({ phase: 'replay', replayId: battleId });
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.set('replay', battleId);
+        window.history.replaceState({}, '', url.toString());
+    }
+}
 
 export async function finalizePending(): Promise<BattleView | null> {
     const bv = store.get().battleView;

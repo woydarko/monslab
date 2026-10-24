@@ -16,6 +16,9 @@ import { gameEvents } from './events.ts';
 import { haptic } from './haptic.ts';
 import { playMusic, sfx, stopAllSfx } from './audio.ts';
 import { wibDayKey } from './time.ts';
+import { api } from '../chain/api.ts';
+import { effectiveLoadout } from '../ui/effectiveLoadout.ts';
+import type { BattleRequest, BattleView, Loadout, MeView } from '../../server/types.ts';
 
 export const DAILY_CAPSULE_WINS = 5;
 const PITY_EVERY = 8;
@@ -338,7 +341,7 @@ export function openCapsule(): void {
         s.goo += goo;
     }
     commit();
-    store.patch({ phase: 'capsule', capsule: { rarity, partId, isNew, goo, stage: 'egg', cracks: 0 } });
+    store.patch({ phase: 'egg', capsule: { rarity, partId, isNew, goo, stage: 'egg', cracks: 0 } });
     engine.show((e) => e.lab()?.showEgg(rarity));
     playMusic('lab');
 }
@@ -429,13 +432,179 @@ export function claimFamilyEgg(family: FamilyId): void {
 }
 
 export function openArena(): void {
-    store.patch({ phase: 'arena' });
+    store.patch({ phase: 'levels' });
 }
 
 export function backToLab(): void {
     if (store.get().phase === 'lab') return;
     const ph = store.get().phase;
-    const fromScene = ph === 'arena' || ph === 'collection';
+    const fromScene = ph === 'levels' || ph === 'collection' || ph === 'pvp' || ph === 'profile' || ph === 'redeem';
     if (fromScene) store.patch({ phase: 'lab' });
     else enterLab();
+}
+
+// ───────────────────────── chain bridge ─────────────────────────
+// Chain is the source of truth: MeView from /api/me is mirrored into the local
+// save so the existing screens render real balances, eggs, Gloo and loadout.
+
+// shortcut: local token map until game/data/tokenIds.ts (G2) lands; same rule (PARTS index + 1, starters 101–103).
+const STARTER_TOKEN: Record<string, number> = { goo_head: 101, goo_body: 102, goo_legs: 103 };
+const STARTER_PART: Record<number, string> = { 101: 'goo_head', 102: 'goo_body', 103: 'goo_legs' };
+
+export function tokenToPartId(id: number): string | null {
+    if (id >= 1 && id <= PARTS.length) return PARTS[id - 1].id;
+    return STARTER_PART[id] ?? null;
+}
+
+export function partToToken(partId: string): number {
+    return STARTER_TOKEN[partId] ?? PARTS.findIndex((p) => p.id === partId) + 1;
+}
+
+export function loadoutParts(l: Loadout): MonsterParts {
+    return [tokenToPartId(l.head) ?? 'goo_head', tokenToPartId(l.body) ?? 'goo_body', tokenToPartId(l.legs) ?? 'goo_legs'];
+}
+
+/** Accessory picked in the Lab (cosmetic; saved with the loadout). */
+let accChoice = 0;
+export const currentAcc = (): number => accChoice;
+export function selectAcc(id: number): void {
+    accChoice = id;
+    store.patch({ rev: store.get().rev + 1 });
+}
+
+export function applyMe(me: MeView): void {
+    const s = save();
+    const owned: Record<string, number> = {};
+    for (const [id, n] of Object.entries(me.balances)) {
+        const p = tokenToPartId(Number(id));
+        if (p && n > 0) owned[p] = (owned[p] ?? 0) + n;
+    }
+    s.ownedParts = owned;
+    s.goo = me.gloo;
+    s.capsules.stored = me.eggs;
+    s.arena.highestTier = me.highestTier;
+    s.ftue = { step: 5, done: true };
+    if (me.registered) {
+        const eff = effectiveLoadout(me.loadout, me.balances);
+        const m = activeMonster();
+        m.parts = loadoutParts(eff);
+        if (!m.customName) m.name = autoName(m.parts);
+        accChoice = eff.acc;
+    }
+    commit();
+    store.patch({ me });
+}
+
+export async function refreshMe(): Promise<MeView> {
+    const me = await api.me();
+    applyMe(me);
+    return me;
+}
+
+/** After the wallet signed in: registered players go to the Lab (or a deep link), new ones to Register. */
+export async function afterSignIn(): Promise<void> {
+    const me = await refreshMe();
+    store.patch({ session: 'signedIn' });
+    if (!me.registered) {
+        store.patch({ phase: 'register' });
+        return;
+    }
+    routeHome();
+}
+
+function routeHome(): void {
+    const dl = store.get().deepLink;
+    enterLab();
+    if (dl.vs) store.patch({ phase: 'pvp', pendingCode: dl.vs, deepLink: { ...dl, vs: undefined } });
+    else if (dl.war) store.patch({ phase: 'war', warId: dl.war, deepLink: { ...dl, war: undefined } });
+}
+
+export async function register(username: string) {
+    const res = await api.register(username);
+    applyMe(res.me);
+    routeHome();
+    return res;
+}
+
+/** Loadout currently shown in the Lab, as token ids. */
+export function labLoadout(): Loadout {
+    const [h, b, l] = activeMonster().parts;
+    return { head: partToToken(h), body: partToToken(b), legs: partToToken(l), acc: accChoice };
+}
+
+export function labDirty(): boolean {
+    const me = store.get().me;
+    if (!me?.registered) return false;
+    const a = labLoadout();
+    const b = effectiveLoadout(me.loadout, me.balances);
+    return a.head !== b.head || a.body !== b.body || a.legs !== b.legs || a.acc !== b.acc;
+}
+
+export async function saveLoadout() {
+    const res = await api.setLoadout(labLoadout());
+    const me = store.get().me;
+    if (me) store.patch({ me: { ...me, loadout: res.loadout } });
+    return res;
+}
+
+async function chainBattle(req: BattleRequest, enemyName: string): Promise<BattleView> {
+    const bv = await api.battle(req);
+    playChainBattle(bv, enemyName);
+    void refreshMe().catch(() => undefined);
+    return bv;
+}
+
+/** Animate a chain battle locally from its on-chain seed and loadouts (replay uses mode 'replay'). */
+export function playChainBattle(bv: BattleView, enemyName: string, mode: BattleMode = bv.mode === 'pve' ? 'arena' : bv.mode === 'pvp' ? 'challenge' : 'war'): void {
+    stopAllSfx();
+    const myParts = loadoutParts(bv.attacker.loadout);
+    let enemy: { monster: Monster; parts: MonsterParts; name: string };
+    if (bv.mode === 'pve') {
+        const t = ARENA[Math.min(bv.defender.tier ?? 0, ARENA.length - 1)];
+        enemy = { monster: scaleMonster(buildMonster(t.parts), t.statMult), parts: t.parts, name: t.name };
+    } else {
+        const parts = loadoutParts(bv.defender.loadout ?? { head: 101, body: 102, legs: 103, acc: 0 });
+        enemy = { monster: buildMonster(parts), parts, name: enemyName };
+    }
+    // shortcut: plain simulate() until G5 buildFighters/playBattle land; server outcome stays authoritative for rewards.
+    const result = simulate(buildMonster(myParts), enemy.monster, bv.seed);
+    const myName = mode === 'replay' ? 'Attacker' : activeMonster().name;
+    store.patch({
+        phase: mode === 'replay' ? 'replay' : 'battle',
+        battleView: bv,
+        battle: { mode, tier: bv.defender.tier ?? 0, names: [myName, enemy.name], parts: [myParts, enemy.parts], maxHp: result.maxHp, winner: result.winner },
+        result: null,
+    });
+    playMusic('battle');
+    const off = gameEvents.on('battleDone', () => {
+        off();
+        if (mode === 'replay') return;
+        const won = bv.outcome.winner === 0;
+        store.patch({
+            phase: 'result',
+            result: { won, mode, capsule: bv.rewards.eggs > 0, goo: bv.rewards.gloo, trophyPart: null, newTier: null, tip: null },
+        });
+        sfx(won ? 'win' : 'lose');
+        haptic(won ? 'medium' : 'heavy');
+    });
+    engine.show((e) => {
+        e.battle({ parts: [myParts, enemy.parts], skins: [0, 0], events: result.events, enemyScale: 1 });
+    });
+}
+
+export const fightLevel = (tier: number) => chainBattle({ mode: 'pve', tier }, ARENA[tier]?.name ?? 'Monster');
+export const fightPvp = (code: string, name: string) => chainBattle({ mode: 'pvp', code }, name);
+export const fightWar = (warId: number, targetIdx: number, name: string) => chainBattle({ mode: 'war', warId, targetIdx }, name);
+
+export async function finalizePending(): Promise<BattleView | null> {
+    const bv = store.get().battleView;
+    if (!bv) return null;
+    const next = await api.finalizeBattle(bv.battleId);
+    store.patch({ battleView: next });
+    void refreshMe().catch(() => undefined);
+    return next;
+}
+
+export function openPhase(phase: 'levels' | 'pvp' | 'community' | 'war' | 'redeem' | 'profile' | 'egg'): void {
+    store.patch({ phase });
 }

@@ -5,7 +5,7 @@ import communityAbi from './abi/MonsCommunity.json';
 import type { Hex } from './types.ts';
 
 const env = import.meta.env;
-const addr = (v: string | undefined): Hex => (v && isAddress(v) ? v : zeroAddress);
+const addr = (v: string | undefined): Hex => (v && isAddress(v) ? (v as Hex) : zeroAddress);
 
 export const ADDR = {
     game: addr(env.VITE_GAME_ADDRESS),

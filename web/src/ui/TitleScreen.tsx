@@ -3,7 +3,8 @@
  * player's monster spinning on the pedestal. One focal point: PLAY.
  */
 import { useStore } from '../state/store.ts';
-import { activeMonster, play, showHowTo } from '../game/actions.ts';
+import { activeMonster, showHowTo } from '../game/actions.ts';
+import { useSession } from '../wallet/useSession.ts';
 import { SoundButton, useSave } from './bits.tsx';
 import Icon from './Icon.tsx';
 import { useLayout } from './layout.ts';
@@ -17,6 +18,22 @@ export default function TitleScreen() {
     const returning = s.ftue.done;
     const m = activeMonster();
     const wide = useLayout() === 'wide';
+    const session = useSession();
+    const busy = session.status === 'connecting' || session.status === 'signing';
+    const replayId = import.meta.env.VITE_DEMO_REPLAY_ID as string | undefined;
+    const status = (
+        <div className="flex flex-col gap-2" aria-live="polite">
+            {session.error ? (
+                <p className="t-body flex items-center gap-2 text-danger"><Icon name="close" size={18} />{session.error}</p>
+            ) : (
+                <p className="t-caption on-scene">Sign in with email — no crypto needed.</p>
+            )}
+            {replayId && (
+                <a className="t-body pointer-events-auto text-ink underline" href={'/?replay=' + replayId}>Watch a replay</a>
+            )}
+            <p className="t-caption on-scene text-muted">v0.1 · Monad testnet</p>
+        </div>
+    );
 
     const eyes = (
         <div className="mb-2 flex items-center gap-2" aria-hidden>
@@ -41,8 +58,8 @@ export default function TitleScreen() {
     ) : null;
     const buttons = (
         <>
-            <button type="button" autoFocus className="btn btn-primary btn-lg attention w-full" onClick={play}>
-                <span className="t-button-lg">{pending && returning ? 'ACCEPT CHALLENGE' : 'PLAY'}</span>
+            <button type="button" autoFocus className="btn btn-primary btn-lg attention w-full" disabled={busy} aria-busy={busy} onClick={() => void session.login()}>
+                <span className="t-button-lg">{busy ? 'Signing in…' : pending ? 'ACCEPT CHALLENGE' : 'PLAY'}</span>
             </button>
             <button type="button" className="btn btn-secondary btn-md w-full" onClick={() => showHowTo(true)}>
                 <span className="t-button">HOW TO PLAY</span>
@@ -63,10 +80,11 @@ export default function TitleScreen() {
                         <h1 className="t-hero-wide text-primary" style={{ textShadow: '0 8px 0 #140b20', WebkitTextStroke: '4px #140b20' }}>
                             MONSLAB
                         </h1>
-                        <p className="t-body on-scene mt-4">Build a monster. Beat your friends.</p>
+                        <p className="t-body on-scene mt-4">Build weird monsters. Battle together.</p>
                     </div>
                     {context}
                     <div className="pointer-events-auto flex w-[340px] flex-col gap-3">{buttons}</div>
+                    {status}
                 </div>
             </div>
         );
@@ -92,7 +110,7 @@ export default function TitleScreen() {
                 <h1 className="t-hero text-center text-primary" style={{ textShadow: '0 6px 0 #140b20', WebkitTextStroke: '3px #140b20' }}>
                     MONSLAB
                 </h1>
-                <p className="t-body on-scene mt-3 text-center">Build a monster. Beat your friends.</p>
+                <p className="t-body on-scene mt-3 text-center">Build weird monsters. Battle together.</p>
             </div>
 
             <div className="flex-1" />
@@ -113,8 +131,9 @@ export default function TitleScreen() {
 
             {/* ── actions ── */}
             <div className="pb-safe-bottom pointer-events-auto flex w-full max-w-sm flex-col gap-3 px-6 pb-6">
-                <button type="button" autoFocus className="btn btn-primary btn-lg attention w-full" onClick={play}>
-                    <span className="t-button-lg">{pending && returning ? 'ACCEPT CHALLENGE' : 'PLAY'}</span>
+                {status}
+                <button type="button" autoFocus className="btn btn-primary btn-lg attention w-full" disabled={busy} aria-busy={busy} onClick={() => void session.login()}>
+                    <span className="t-button-lg">{busy ? 'Signing in…' : pending ? 'ACCEPT CHALLENGE' : 'PLAY'}</span>
                 </button>
                 <button type="button" className="btn btn-secondary btn-md w-full" onClick={() => showHowTo(true)}>
                     <span className="t-button">HOW TO PLAY</span>

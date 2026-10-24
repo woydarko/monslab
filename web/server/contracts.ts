@@ -1,10 +1,11 @@
 /** Read-side chain access for the API (viem public client + typed contract handles). */
-import { createPublicClient, fallback, http, hexToString, parseAbiItem, type Abi } from 'viem';
+import { createPublicClient, fallback, http, hexToString, type Abi } from 'viem';
 import { monadTestnet } from 'viem/chains';
 import gameAbi from '../src/chain/abi/MonsGame.json' with { type: 'json' };
 import partsAbi from '../src/chain/abi/MonsParts.json' with { type: 'json' };
 import communityAbi from '../src/chain/abi/MonsCommunity.json' with { type: 'json' };
 import { getEnv } from './env.ts';
+import { EGG_HATCHED, EGG_REQUESTED } from './events.ts';
 import type { Hex, Loadout, MeView } from './types.ts';
 
 export const GAME_ABI = gameAbi as Abi;
@@ -14,8 +15,6 @@ export const COMMUNITY_ABI = communityAbi as Abi;
 /** Every token id a player can hold: parts 1..21, starters 101..103, accessories 201..203. */
 export const ALL_TOKEN_IDS = [...Array.from({ length: 21 }, (_, i) => i + 1), 101, 102, 103, 201, 202, 203];
 
-export const EGG_REQUESTED = parseAbiItem('event EggRequested(address indexed player, uint64 indexed sequence, uint8 eggType)');
-export const EGG_HATCHED = parseAbiItem('event EggHatched(address indexed player, uint64 indexed sequence, uint256 tokenId, uint8 rarity)');
 
 /** Max block span per eth_getLogs call. */
 export const LOG_CHUNK = 10_000n;
@@ -113,4 +112,20 @@ export async function readMe(address: Hex): Promise<MeView> {
         communityId: Number(cid) > 0 ? Number(cid) : undefined,
         limits: { glooToday: Number(p.glooToday), glooCap: Number(params.glooDailyCap), pvpEggsToday: Number(p.pvpEggsToday), pvpEggCap: Number(params.pvpEggCap) },
     };
+}
+
+export async function readGame<T>(functionName: string, args: readonly unknown[] = []): Promise<T> {
+    return (await publicClient().readContract({ ...game(), functionName, args })) as T;
+}
+
+export async function readCommunity<T>(functionName: string, args: readonly unknown[] = []): Promise<T> {
+    return (await publicClient().readContract({ ...community(), functionName, args })) as T;
+}
+
+/** EggHatched log for a sequence, or null. */
+export async function findHatched(sequence: bigint): Promise<{ tokenId: number; rarity: number; txHash: Hex } | null> {
+    const pc = publicClient();
+    const logs = await getLogsChunked((fromBlock, toBlock) => pc.getLogs({ address: game().address, event: EGG_HATCHED, args: { sequence }, fromBlock, toBlock }));
+    const l = logs[0];
+    return l ? { tokenId: Number(l.args.tokenId), rarity: Number(l.args.rarity), txHash: l.transactionHash } : null;
 }

@@ -17,6 +17,7 @@ import { haptic } from './haptic.ts';
 import { playMusic, sfx, stopAllSfx } from './audio.ts';
 import { wibDayKey } from './time.ts';
 import { api } from '../chain/api.ts';
+import type { BattleRecord, ReplaySim } from '../chain/replay.ts';
 import { effectiveLoadout } from '../ui/effectiveLoadout.ts';
 import { calloutPlan } from '../ui/battleCallout.ts';
 import { clearCallout, emitCallout } from '../ui/callouts.ts';
@@ -96,7 +97,10 @@ export function enterLab(opts: { mix?: boolean } = {}): void {
 /** Title screen: the player's monster showcased on the pedestal behind the logo. */
 export function enterTitle(): void {
     stopAllSfx();
-    store.patch({ phase: 'title', battle: null, result: null, capsule: null, howTo: false });
+    // A `?replay=` deep link goes straight to the replay screen (no login needed).
+    const replay = store.get().deepLink.replay;
+    store.patch({ phase: replay ? 'replay' : 'title', battle: null, result: null, capsule: null, howTo: false });
+    if (replay && !store.get().replayId) store.patch({ replayId: replay });
     playMusic('lab');
     engine.show((e) => {
         const m = activeMonster();
@@ -633,12 +637,57 @@ export function showResult(): void {
 
 /** S-10 deep link: `?replay=<battleId>`. */
 export function openReplay(battleId: string): void {
-    store.patch({ phase: 'replay', replayId: battleId });
+    store.patch({ phase: 'replay', replayId: battleId, deepLink: { ...store.get().deepLink, replay: battleId } });
     if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
         url.searchParams.set('replay', battleId);
         window.history.replaceState({}, '', url.toString());
     }
+}
+
+/**
+ * F-12 playback: animate a fight that was read back from Monad. Purely local —
+ * the sim result is the verifier's own recomputation, nothing is written.
+ */
+export function playReplayBattle(record: BattleRecord, sim: ReplaySim, names: [string, string]): void {
+    stopAllSfx();
+    const { parts, result } = sim;
+    store.patch({
+        phase: 'replay',
+        battleView: null,
+        result: null,
+        battle: {
+            mode: 'replay',
+            tier: record.mode === 0 ? Number(record.ref) : 0,
+            names,
+            parts,
+            maxHp: result.maxHp,
+            winner: result.winner,
+        },
+    });
+    const plan = calloutPlan(result.events);
+    let beat = 0;
+    const offCallout = gameEvents.on('hp', () => emitCallout(plan[beat++] ?? null));
+    playMusic('battle');
+    const off = gameEvents.on('battleDone', () => {
+        off();
+        offCallout();
+        clearCallout();
+    });
+    engine.show((e) => {
+        e.battle({ parts, skins: [0, 0], events: result.events, enemyScale: 1 });
+    });
+}
+
+/** Leave the replay screen: drop the deep link and go back to the title. */
+export function leaveReplay(): void {
+    store.patch({ deepLink: { ...store.get().deepLink, replay: undefined }, battle: null, result: null, replayId: null });
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('replay');
+        window.history.replaceState({}, '', url.toString());
+    }
+    enterTitle();
 }
 
 export async function finalizePending(): Promise<BattleView | null> {

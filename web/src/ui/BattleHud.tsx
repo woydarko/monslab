@@ -34,6 +34,8 @@ export default function BattleHud() {
 
     const wide = useLayout() === 'wide';
     const controls = phase === 'battle';
+    /** Replays share the HUD (names, HP, callouts) but never the fight controls. */
+    const bars = phase === 'battle' || phase === 'replay';
     const toggleFast = () => {
         setBattleSpeed(fast ? 1 : 2);
         setFast(!fast);
@@ -110,7 +112,7 @@ export default function BattleHud() {
             </div>
             <CalloutLayer />
             <div className="flex-1" />
-            {phase === 'battle' && (
+            {bars && (
                 <div className="pb-safe-bottom px-4 pb-2">
                     <HpBar name={battle.names[0]} head={battle.parts[0][0]} hp={hp[0]} max={battle.maxHp[0]} />
                 </div>

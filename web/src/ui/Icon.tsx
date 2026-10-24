@@ -6,7 +6,7 @@
 export type IconName =
     | 'sword' | 'mail' | 'flask' | 'sound' | 'mute' | 'help' | 'home' | 'pencil'
     | 'eye' | 'egg' | 'lock' | 'close' | 'back' | 'next' | 'trophy' | 'keyboard'
-    | 'skip' | 'mix' | 'skull' | 'check' | 'book' | 'gift';
+    | 'skip' | 'mix' | 'skull' | 'check' | 'book' | 'gift' | 'link';
 
 const PATHS: Record<IconName, React.ReactNode> = {
     sword: (
@@ -105,6 +105,13 @@ const PATHS: Record<IconName, React.ReactNode> = {
     gift: <path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7c-1-3-5-4-5-1.5S10 7 12 7c2 0 5-.5 5-1.5S13 4 12 7z" />,
     /** Collection Book: an open book. */
     book: <path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2zM12 6v14" />,
+    /** Share link: two chain links. */
+    link: (
+        <>
+            <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7L11.5 7" />
+            <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7L12.5 17" />
+        </>
+    ),
 };
 
 export default function Icon({ name, size = 24, className = '', title }: { name: IconName; size?: number; className?: string; title?: string }) {

@@ -18,8 +18,9 @@ import TxChip from './TxChip.tsx';
 import { SceneFade, Sheet, UiScale } from './bits.tsx';
 import { FloatLayer } from './BattleHud.tsx';
 import { parseDeepLink } from './deepLink.ts';
-import { backToLab, refreshMe } from '../game/actions.ts';
+import { backToLab, openReplay, refreshMe } from '../game/actions.ts';
 import RegisterDialog from './RegisterDialog.tsx';
+import ReplayScreen from './ReplayScreen.tsx';
 import WalletProvider from '../wallet/WalletProvider.tsx';
 
 /** Screens shown over the Lab scene (the Lab stays mounted underneath). */
@@ -44,6 +45,8 @@ function Frame() {
     useEffect(() => {
         const deepLink = parseDeepLink(window.location.search);
         store.patch({ deepLink, pendingCode: deepLink.vs ?? null });
+        // A replay link is read-only: no login, straight to S-10.
+        if (deepLink.replay) openReplay(deepLink.replay);
         // Restore an existing cookie session (Play then skips the wallet step).
         refreshMe()
             .then(() => store.patch({ session: 'signedIn' }))
@@ -72,8 +75,14 @@ function Frame() {
                         {inLab && <LabScreen />}
                         {phase === 'levels' && <LevelsSheet />}
                         {phase === 'collection' && <CollectionSheet />}
-                        {(phase === 'pvp' || phase === 'community' || phase === 'war' || phase === 'redeem' || phase === 'profile' || phase === 'replay') && (
+                        {(phase === 'pvp' || phase === 'community' || phase === 'war' || phase === 'redeem' || phase === 'profile') && (
                             <Placeholder phase={phase} />
+                        )}
+                        {phase === 'replay' && (
+                            <>
+                                <BattleHud />
+                                <ReplayScreen />
+                            </>
                         )}
                         {(phase === 'battle' || phase === 'result') && <BattleHud />}
                         {phase === 'result' && <ResultPanel />}
@@ -97,7 +106,7 @@ function Frame() {
                 )}
             </UiScale>
             {/* Battle numbers are positioned in real canvas pixels, so they live outside the scaled layer. */}
-            {(phase === 'battle' || phase === 'result') && <FloatLayer />}
+            {(phase === 'battle' || phase === 'result' || phase === 'replay') && <FloatLayer />}
         </div>
     );
 }

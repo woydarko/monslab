@@ -5,7 +5,7 @@ import gameAbi from '../src/chain/abi/MonsGame.json' with { type: 'json' };
 import partsAbi from '../src/chain/abi/MonsParts.json' with { type: 'json' };
 import communityAbi from '../src/chain/abi/MonsCommunity.json' with { type: 'json' };
 import { getEnv } from './env.ts';
-import { EGG_HATCHED, EGG_REQUESTED } from './events.ts';
+import { EGG_HATCHED, EGG_REQUESTED, BATTLE_STARTED } from './events.ts';
 import type { Hex, Loadout, MeView } from './types.ts';
 
 export const GAME_ABI = gameAbi as Abi;
@@ -128,4 +128,38 @@ export async function findHatched(sequence: bigint): Promise<{ tokenId: number; 
     const logs = await getLogsChunked((fromBlock, toBlock) => pc.getLogs({ address: game().address, event: EGG_HATCHED, args: { sequence }, fromBlock, toBlock }));
     const l = logs[0];
     return l ? { tokenId: Number(l.args.tokenId), rarity: Number(l.args.rarity), txHash: l.transactionHash } : null;
+}
+
+/** Everything a replay needs from `BattleStarted` (ARCHITECTURE §Flow F). */
+export interface BattleStartedLog {
+    battleId: bigint;
+    attacker: Hex;
+    defender: Hex;
+    mode: number;
+    ref: bigint;
+    atkLoadout: bigint;
+    defLoadout: bigint;
+    seed: number;
+    simVersion: number;
+    txHash: Hex;
+}
+
+/** BattleStarted log for a battle id, or null. */
+export async function findBattleStarted(battleId: bigint): Promise<BattleStartedLog | null> {
+    const pc = publicClient();
+    const logs = await getLogsChunked((fromBlock, toBlock) => pc.getLogs({ address: game().address, event: BATTLE_STARTED, args: { battleId }, fromBlock, toBlock }));
+    const l = logs[0];
+    if (!l) return null;
+    return {
+        battleId: l.args.battleId!,
+        attacker: l.args.attacker!,
+        defender: l.args.defender!,
+        mode: Number(l.args.mode),
+        ref: l.args.ref!,
+        atkLoadout: l.args.atkLoadout!,
+        defLoadout: l.args.defLoadout!,
+        seed: Number(l.args.seed),
+        simVersion: Number(l.args.simVersion),
+        txHash: l.transactionHash,
+    };
 }

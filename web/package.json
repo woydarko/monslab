@@ -12,7 +12,8 @@
         "gen:vectors": "node scripts/gen-vectors.ts",
         "preview": "vite preview",
         "balance:check": "node scripts/balance-check.ts",
-        "fit:arena": "node scripts/fit-arena.ts"
+        "fit:arena": "node scripts/fit-arena.ts",
+        "e2e": "playwright test"
     },
     "dependencies": {
         "react": "19.2.4",
@@ -21,6 +22,7 @@
         "viem": "^2"
     },
     "devDependencies": {
+        "@playwright/test": "^1.64.1",
         "@tailwindcss/vite": "^4.1.5",
         "@types/node": "^20",
         "@types/react": "^19",

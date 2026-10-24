@@ -1,5 +1,5 @@
 /** Test helpers: signed-in requests and fake receipts. Never imported by handlers. */
-import { encodeAbiParameters, encodeEventTopics, type AbiEvent, type Hex, type Log } from 'viem';
+import { encodeAbiParameters, encodeEventTopics, type AbiEvent, type AbiParameter, type Hex, type Log } from 'viem';
 import { signJwt } from '../server/session.ts';
 
 export const PLAYER = '0x1111111111111111111111111111111111111111' as const;
@@ -26,8 +26,8 @@ export async function errorCode(res: Response): Promise<string> {
 /** A receipt log that viem can decode back into `event`. */
 export function fakeLog(event: AbiEvent, args: Record<string, unknown>): Log {
     const topics = encodeEventTopics({ abi: [event], eventName: event.name, args: args as never }) as Hex[];
-    const plain = event.inputs.filter((i) => !i.indexed);
-    const data = plain.length ? encodeAbiParameters(plain as never, plain.map((i) => args[i.name as string]) as never) : '0x';
+    const plain = event.inputs.filter((i: AbiParameter & { indexed?: boolean }) => !i.indexed);
+    const data = plain.length ? encodeAbiParameters(plain as never, plain.map((i: AbiParameter) => args[i.name as string]) as never) : '0x';
     return {
         address: GAME,
         topics,

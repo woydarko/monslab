@@ -1,7 +1,7 @@
 import { parseEventLogs } from 'viem';
 import { community } from '../../server/contracts.ts';
 import { ok } from '../../server/errors.ts';
-import { WAR_SETTLED } from '../../server/events.ts';
+import { WAR_SETTLED, argsOf } from '../../server/events.ts';
 import { ApiError, withApi } from '../../server/http.ts';
 import { sendAs } from '../../server/relayer.ts';
 import { requireSession } from '../../server/session.ts';
@@ -18,5 +18,5 @@ export const POST = withApi(async (request) => {
     const { hash, receipt } = await sendAs(player, { ...community(), functionName: 'settleWar', args: [warId] });
     const [log] = parseEventLogs({ abi: [WAR_SETTLED], eventName: 'WarSettled', logs: receipt.logs, strict: false });
     if (!log) throw new ApiError(500, 'internal');
-    return ok({ txHash: hash, winnerCid: Number(log.args.winnerCid) });
+    return ok({ txHash: hash, winnerCid: Number(argsOf<{ winnerCid: number }>(log).winnerCid) });
 });

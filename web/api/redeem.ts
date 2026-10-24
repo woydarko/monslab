@@ -1,7 +1,7 @@
 import { keccak256, parseEventLogs, toBytes } from 'viem';
 import { game, readGame } from '../server/contracts.ts';
 import { ok } from '../server/errors.ts';
-import { REDEEMED } from '../server/events.ts';
+import { REDEEMED, argsOf } from '../server/events.ts';
 import { ApiError, withApi } from '../server/http.ts';
 import { sendAs } from '../server/relayer.ts';
 import { requireSession } from '../server/session.ts';
@@ -41,7 +41,7 @@ export const POST = withApi(async (request) => {
         const { hash: txHash, receipt } = await sendAs(player, { ...game(), functionName: 'redeem', args: [player, dropId, code] });
         const [log] = parseEventLogs({ abi: [REDEEMED], eventName: 'Redeemed', logs: receipt.logs, strict: false });
         console.log(JSON.stringify({ level: 'info', route: 'redeem', dropId: String(dropId), ok: true }));
-        return ok({ txHash, tokenId: Number(log?.args.tokenId ?? drop.tokenId) });
+        return ok({ txHash, tokenId: Number(log ? argsOf<{ tokenId: bigint }>(log).tokenId : drop.tokenId) });
     }
 
     throw new ApiError(400, 'invalid_code');

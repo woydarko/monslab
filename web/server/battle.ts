@@ -8,7 +8,7 @@ import { buildFighters, computeBattle } from '../src/game/battlePlayer.ts';
 import { unpackLoadout } from '../src/game/data/tokenIds.ts';
 import { resultHash } from '../src/game/sim/outcome.ts';
 import { findBattleStarted, game, readCommunity, readGame, type BattleStartedLog } from './contracts.ts';
-import { BATTLE_STARTED, REWARD_GRANTED } from './events.ts';
+import { BATTLE_STARTED, REWARD_GRANTED, argsOf } from './events.ts';
 import { mapRevert } from './errors.ts';
 import { ApiError } from './http.ts';
 import { sendAs } from './relayer.ts';
@@ -82,8 +82,9 @@ async function finalizeOnce(player: Hex, started: BattleStartedLog, outcome: Bat
     const o = { ...outcome, resultHash: resultHash(started.battleId, started.seed, outcome) };
     const { hash, receipt } = await sendAs(player, { ...game(), functionName: 'finalizeBattle', args: [started.battleId, o] });
     const [reward] = parseEventLogs({ abi: [REWARD_GRANTED], eventName: 'RewardGranted', logs: receipt.logs, strict: false });
-    const rewards = reward
-        ? { gloo: Number(reward.args.gloo), eggs: Number(reward.args.eggs), brainDelta: Number(reward.args.brainDelta) }
+    const granted = reward ? argsOf<{ gloo: bigint; eggs: number; brainDelta: number }>(reward) : null;
+    const rewards = granted
+        ? { gloo: Number(granted.gloo), eggs: Number(granted.eggs), brainDelta: Number(granted.brainDelta) }
         : { gloo: 0, eggs: 0, brainDelta: 0 };
     return { txFinal: hash, rewards };
 }

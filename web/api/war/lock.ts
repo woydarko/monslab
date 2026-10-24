@@ -1,7 +1,7 @@
 import { parseEventLogs } from 'viem';
 import { community, readGame } from '../../server/contracts.ts';
 import { mapRevert, ok } from '../../server/errors.ts';
-import { TARGET_LOCKED } from '../../server/events.ts';
+import { TARGET_LOCKED, argsOf } from '../../server/events.ts';
 import { ApiError, withApi } from '../../server/http.ts';
 import { sendAs } from '../../server/relayer.ts';
 import { requireSession } from '../../server/session.ts';
@@ -19,7 +19,7 @@ export const POST = withApi(async (request) => {
         const { hash, receipt } = await sendAs(player, { ...community(), functionName: 'lockTarget', args: [player, warId, targetIdx] });
         const [log] = parseEventLogs({ abi: [TARGET_LOCKED], eventName: 'TargetLocked', logs: receipt.logs, strict: false });
         if (!log) throw new ApiError(500, 'internal');
-        return ok({ txHash: hash, lockedUntil: Number(log.args.lockedUntil) });
+        return ok({ txHash: hash, lockedUntil: Number(argsOf<{ lockedUntil: bigint }>(log).lockedUntil) });
     } catch (err) {
         const mapped = mapRevert(err);
         // Two attackers raced for the same target: tell the loser who got it, by username.

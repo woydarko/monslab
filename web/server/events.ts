@@ -1,6 +1,11 @@
 /** Event signatures the API decodes (from receipts and logs). Pure. */
 import { parseAbiItem } from 'viem';
 
+/** Decoded args of a log, typed by the caller: viem widens `args` when `strict: false`, and some build setups lose the ABI types. */
+export function argsOf<T>(log: { args: unknown }): T {
+    return log.args as T;
+}
+
 export const EGG_REQUESTED = parseAbiItem('event EggRequested(address indexed player, uint64 indexed sequence, uint8 eggType)');
 export const EGG_HATCHED = parseAbiItem('event EggHatched(address indexed player, uint64 indexed sequence, uint256 tokenId, uint8 rarity)');
 export const BATTLE_STARTED = parseAbiItem(

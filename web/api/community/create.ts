@@ -1,7 +1,7 @@
 import { parseEventLogs } from 'viem';
 import { community } from '../../server/contracts.ts';
 import { ok } from '../../server/errors.ts';
-import { COMMUNITY_CREATED } from '../../server/events.ts';
+import { COMMUNITY_CREATED, argsOf } from '../../server/events.ts';
 import { ApiError, withApi } from '../../server/http.ts';
 import { sendAs } from '../../server/relayer.ts';
 import { requireSession } from '../../server/session.ts';
@@ -15,5 +15,5 @@ export const POST = withApi(async (request) => {
     const { hash, receipt } = await sendAs(player, { ...community(), functionName: 'create', args: [player, name] });
     const [log] = parseEventLogs({ abi: [COMMUNITY_CREATED], eventName: 'CommunityCreated', logs: receipt.logs, strict: false });
     if (!log) throw new ApiError(500, 'internal');
-    return ok({ txHash: hash, communityId: Number(log.args.cid) });
+    return ok({ txHash: hash, communityId: Number(argsOf<{ cid: number }>(log).cid) });
 });

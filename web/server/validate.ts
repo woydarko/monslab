@@ -68,6 +68,22 @@ export function eggType(s: unknown): 0 | 1 {
     return s === 'normal' ? 0 : s === 'rare' ? 1 : fail('invalid_request');
 }
 
+/** Week index (uint32) for weekly claims. */
+export const week = (n: unknown): number => uint(n, 4_294_967_295);
+
+/** Community / war id (uint32). */
+export const communityId = (n: unknown): number => uint(n, 4_294_967_295);
+
+/** Weekly task: 0 = THEME, 1 = HATCH. */
+export function weeklyTask(s: unknown): 0 | 1 {
+    return s === 'theme' ? 0 : s === 'hatch' ? 1 : fail('invalid_request');
+}
+
+/** Weekly tier: 0 bronze, 1 silver, 2 gold. */
+export function weeklyTier(s: unknown): 0 | 1 | 2 {
+    return s === 'bronze' ? 0 : s === 'silver' ? 1 : s === 'gold' ? 2 : fail('invalid_request');
+}
+
 export function battleRequest(body: Record<string, unknown>): BattleRequest {
     switch (body.mode) {
         case 'pve':

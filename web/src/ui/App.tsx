@@ -11,7 +11,7 @@ import ArenaSheet from './ArenaSheet.tsx';
 import CollectionSheet from './CollectionSheet.tsx';
 import BattleHud from './BattleHud.tsx';
 import ResultPanel from './ResultPanel.tsx';
-import CapsuleOverlay from './CapsuleOverlay.tsx';
+import EggScreen from './EggScreen.tsx';
 import TitleScreen from './TitleScreen.tsx';
 import HowToPlay from './HowToPlay.tsx';
 import TxChip from './TxChip.tsx';
@@ -77,7 +77,7 @@ function Frame() {
                         )}
                         {(phase === 'battle' || phase === 'result') && <BattleHud />}
                         {phase === 'result' && <ResultPanel />}
-                        {phase === 'egg' && <CapsuleOverlay />}
+                        {phase === 'egg' && <EggScreen />}
                         {howTo && <HowToPlay />}
                     </>
                 )}

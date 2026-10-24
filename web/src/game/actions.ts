@@ -346,18 +346,6 @@ export function openCapsule(): void {
     playMusic('lab');
 }
 
-/** Spend Goo on an egg. Bought eggs skip the daily win limit; that's the point of saving up. */
-export function buyEgg(): void {
-    const s = save();
-    if (s.goo < EGG_PRICE) return;
-    s.goo -= EGG_PRICE;
-    s.capsules.stored++;
-    commit();
-    sfx('pop', { pitch: 0.9 });
-    haptic('light');
-    toast('Egg bought');
-}
-
 export function tapCapsule(): void {
     const c = store.get().capsule;
     if (!c || c.stage !== 'egg') return;
@@ -637,4 +625,77 @@ export async function finalizePending(): Promise<BattleView | null> {
 
 export function openPhase(phase: 'levels' | 'pvp' | 'community' | 'war' | 'redeem' | 'profile' | 'egg'): void {
     store.patch({ phase });
+}
+
+// ───────────────────────── eggs (S-05) ─────────────────────────
+// Tap 1 opens the egg on chain (relayer → Pyth Entropy); the part arrives with
+// `EggHatched`, which we poll for until it lands (K4 swaps this for watchEgg).
+
+/** Price of one normal egg in Gloo (F-05, proposal). */
+export const EGG_PRICE_GLOO = 100;
+const EGG_POLL_MS = 500;
+const EGG_WAIT_NOTICE_MS = 2000;
+const EGG_GIVE_UP_MS = 60_000;
+
+export interface HatchResult {
+    sequence: string;
+    /** Absent while the Entropy callback has not landed yet (the egg stays pending). */
+    tokenId?: number;
+    rarity?: number;
+    txHash?: string;
+}
+
+/** Poll one sequence until it hatches, gives up after 60 s (Review Focus 3: the egg is never lost). */
+async function awaitHatch(sequence: string, onWaiting?: () => void): Promise<HatchResult> {
+    const started = Date.now();
+    let noticed = false;
+    for (;;) {
+        try {
+            const st = await api.eggStatus(sequence);
+            if (st.status === 'hatched') return { sequence, tokenId: st.tokenId, rarity: st.rarity, txHash: st.txHash };
+        } catch {
+            // Transient RPC/API hiccup: keep polling, the hatch is already on chain.
+        }
+        const waited = Date.now() - started;
+        if (!noticed && waited >= EGG_WAIT_NOTICE_MS) {
+            noticed = true;
+            onWaiting?.();
+        }
+        if (waited >= EGG_GIVE_UP_MS) return { sequence };
+        await sleep(EGG_POLL_MS);
+    }
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** S-05: open one egg and watch it hatch. */
+export async function openEgg(
+    eggType: 'normal' | 'rare' = 'normal',
+    hooks: { onRequested?: (sequence: string) => void; onWaiting?: () => void } = {},
+): Promise<HatchResult> {
+    const { sequence } = await api.openEgg(eggType);
+    hooks.onRequested?.(sequence);
+    void refreshMe().catch(() => undefined);
+    const res = await awaitHatch(sequence, hooks.onWaiting);
+    void refreshMe().catch(() => undefined);
+    return res;
+}
+
+/** F-05: buy eggs with Gloo (100 each). */
+export async function buyEgg(count = 1) {
+    const res = await api.buyEgg(count);
+    void refreshMe().catch(() => undefined);
+    return res;
+}
+
+/** Review Focus 3: an egg still hatching from a previous visit is resumed, never lost. */
+export async function resumePendingEggs(hooks: { onPending?: (sequence: string) => void; onWaiting?: () => void } = {}): Promise<HatchResult[]> {
+    const seqs = store.get().me?.pendingEggs ?? [];
+    const out: HatchResult[] = [];
+    for (const sequence of seqs) {
+        hooks.onPending?.(sequence);
+        out.push(await awaitHatch(sequence, hooks.onWaiting));
+    }
+    if (out.length) void refreshMe().catch(() => undefined);
+    return out;
 }

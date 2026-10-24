@@ -310,3 +310,10 @@ body {
     .tx-spin { animation-duration: 2.4s; }
     .stamp, .lock-flash { animation: none; }
 }
+
+/* Egg: a slow wobble while it waits for taps (motion.egg, DESIGN_SYSTEM §8). */
+.egg-wobble { animation: egg-wobble 1.2s ease-in-out infinite; }
+@keyframes egg-wobble { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) {
+    .egg-wobble { animation: none; }
+}

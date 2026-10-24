@@ -9,9 +9,12 @@ import {MonsTypes} from "./interfaces/Types.sol";
 /// Monster parts (ERC-1155). Starter parts 101..103 are soulbound; only minters (game, community) create tokens.
 contract MonsParts is ERC1155, AccessControl, IMonsParts {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    /// Separate from the admin so the deployer can renounce DEFAULT_ADMIN_ROLE (no new minter, ever) and still fix metadata.
+    bytes32 public constant URI_ROLE = keccak256("URI_ROLE");
 
     constructor(address admin, string memory uri_) ERC1155(uri_) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        _grantRole(URI_ROLE, admin);
     }
 
     function mint(address to, uint256 id, uint256 amount) external onlyRole(MINTER_ROLE) {
@@ -22,7 +25,7 @@ contract MonsParts is ERC1155, AccessControl, IMonsParts {
         return super.balanceOf(account, id);
     }
 
-    function setURI(string calldata uri_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setURI(string calldata uri_) external onlyRole(URI_ROLE) {
         _setURI(uri_);
     }
 

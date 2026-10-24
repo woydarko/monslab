@@ -19,6 +19,23 @@ contract MonsPartsTest is Test {
         parts.grantRole(parts.MINTER_ROLE(), game);
     }
 
+    function test_uriRoleSetsUri() public {
+        parts.setURI("https://example.invalid/new/{id}.json");
+        assertEq(parts.uri(1), "https://example.invalid/new/{id}.json");
+        bytes32 role = parts.URI_ROLE();
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, bob, role));
+        vm.prank(bob);
+        parts.setURI("x");
+    }
+
+    function test_adminCanRenounceAndKeepUriRole() public {
+        parts.renounceRole(parts.DEFAULT_ADMIN_ROLE(), admin);
+        bytes32 minter = parts.MINTER_ROLE();
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, admin, bytes32(0)));
+        parts.grantRole(minter, admin); // nobody can create a new minter any more
+        parts.setURI("https://example.invalid/still/{id}.json"); // URI_ROLE survives
+    }
+
     function test_minterCanMint() public {
         vm.prank(game);
         parts.mint(alice, 5, 2);

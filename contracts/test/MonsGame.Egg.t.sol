@@ -148,6 +148,16 @@ contract MonsGameEggTest is Fixture {
         game.fulfillEggBackend(seq, bytes32(uint256(1)));
     }
 
+    function test_backend_cannotFulfilEntropyRequestAfterSwitch() public {
+        vm.prank(relayer);
+        uint64 seq = game.openEgg{value: 0.128 ether}(alice, 0); // Entropy sequence
+        game.setRandomSource(1);
+        vm.expectRevert(IMonsGame.UnknownEgg.selector);
+        vm.prank(relayer);
+        game.fulfillEggBackend(seq, bytes32(uint256(9999)));
+        assertEq(game.getPlayer(alice).pendingEggs, 1);
+    }
+
     function test_withdraw() public {
         vm.deal(address(game), 1 ether);
         game.withdraw(payable(bob));

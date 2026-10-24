@@ -40,6 +40,9 @@ contract DeployTest is Test {
         }
         assertEq(game.drops(1).tokenId, 201);
         assertEq(game.drops(1).codeHash, keccak256(bytes("BLITZJOGJA")));
+        assertFalse(parts.hasRole(parts.DEFAULT_ADMIN_ROLE(), address(d)), "parts admin must be renounced");
+        assertTrue(parts.hasRole(parts.URI_ROLE(), address(d)));
+        assertTrue(game.hasRole(game.DEFAULT_ADMIN_ROLE(), address(d)));
         assertEq(game.entropy(), cfg.entropy);
         assertEq(game.rarityOf(8), 2);
         assertEq(game.slotOf(8), 1);

@@ -83,6 +83,23 @@ contract MonsGameBattleTest is Fixture {
         game.finalizeBattle(id, o);
     }
 
+    function test_finalize_hpAboveMaxRejected() public {
+        (uint256 id, uint32 seed) = _start(alice, 0, 0);
+        Outcome memory o = _outcome(id, seed, 0);
+        o.hpLeftA = o.maxHpA + 1;
+        o.resultHash = _hash(id, seed, o); // hash matches: only the bound can stop it
+        vm.expectRevert(IMonsGame.BadResultHash.selector);
+        vm.prank(relayer);
+        game.finalizeBattle(id, o);
+
+        o = _outcome(id, seed, 1);
+        o.hpLeftB = o.maxHpB + 1;
+        o.resultHash = _hash(id, seed, o);
+        vm.expectRevert(IMonsGame.BadResultHash.selector);
+        vm.prank(relayer);
+        game.finalizeBattle(id, o);
+    }
+
     function test_finalize_twice() public {
         (uint256 id, uint32 seed) = _start(alice, 0, 0);
         Outcome memory o = _outcome(id, seed, 0);

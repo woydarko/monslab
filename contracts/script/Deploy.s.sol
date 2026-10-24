@@ -102,6 +102,8 @@ contract Deploy is Script {
         if (cfg.codeHash != bytes32(0)) {
             game.createDrop(1, cfg.codeHash, MonsTypes.ACC_CROWN, cfg.dropStartsAt, cfg.dropEndsAt, 500);
         }
+        // last grant is done: nobody can add a minter any more (URI_ROLE keeps metadata fixable)
+        parts.renounceRole(parts.DEFAULT_ADMIN_ROLE(), cfg.admin);
     }
 
     function readSlots() public view returns (uint8[] memory) {

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="Goo drop">
+  <!--
+    MONSLAB wordmark accent: a goo drop that sits on the "O".
+    Design tokens only — primary #B6FF3B, slime shade #7BD389, ink highlight #F4F1FF
+    (docs/DESIGN_SYSTEM.md §5). Transparent background, so it drops onto the letter.
+  -->
+  <title>Goo drop</title>
+  <!-- Round top, shoulders pulling in, tapering to a drip point at the bottom. -->
+  <path
+    fill="#B6FF3B"
+    d="M50 3c23 0 41 17 41 40 0 16-8 29-20 37-6 4-11 8-15 14-1 2-2 3-3 4h-6c-1-1-2-2-3-4-4-6-9-10-15-14C17 72 9 59 9 43 9 20 27 3 50 3Z"
+  />
+  <!-- Liquid shade on the lower-left, so the blob reads as a drip not a ball. -->
+  <path
+    fill="#7BD389"
+    d="M50 94c-1-1-2-2-3-4-4-6-9-10-15-14-7-4-12-10-16-17 3 8 8 15 15 19 6 4 11 8 15 14 1 2 2 3 4 4h0Z"
+  />
+  <!-- One hard specular highlight, like the PS1 toybox materials. -->
+  <ellipse cx="36" cy="31" rx="10" ry="13" fill="#F4F1FF" opacity="0.5" transform="rotate(-22 36 31)" />
+</svg>

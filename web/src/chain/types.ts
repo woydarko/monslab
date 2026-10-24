@@ -27,6 +27,13 @@ export interface CommunityView {
     members: readonly Hex[];
 }
 
+/** `weeklyView(week, cid, player)`: per task (0 theme, 1 hatch). */
+export interface WeeklyView {
+    progress: readonly [number, number];
+    contribution: readonly [number, number];
+    claimedMask: readonly [number, number];
+}
+
 export interface PlayerView {
     registered: boolean;
     username: string;

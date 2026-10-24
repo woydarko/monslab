@@ -28,6 +28,11 @@
     --color-shroom: #f15bb5;
     --color-ghost: #9fffe0;
 
+    /* Weekly task tier markers (DESIGN_SYSTEM §Components: graphics only, never text). */
+    --color-bronze: #cd7f32;
+    --color-silver: #c0c0c0;
+    --color-gold: #ffc300;
+
     --font-display: "Lilita One", system-ui, sans-serif;
     --font-body: "Nunito", system-ui, sans-serif;
     --font-pixel: "VT323", ui-monospace, monospace;

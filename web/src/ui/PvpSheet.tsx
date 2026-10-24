@@ -151,7 +151,7 @@ export default function PvpSheet() {
                             aria-invalid={!!lookupError}
                             aria-describedby="opponent-code-help"
                             onChange={(e) => setInput(e.target.value.toUpperCase())}
-                            onBlur={() => input && void lookup(input)}
+                            onBlur={() => input.trim() && !normalizeCode(input) && setLookupError(errorCopy('bad_code_format'))}
                             className={`t-num min-w-0 flex-1 rounded-[var(--radius-sm)] border-2 bg-panel px-3 py-2 tracking-[0.12em] text-ink outline-none focus-visible:ring-[3px] focus-visible:ring-primary ${
                                 lookupError ? 'border-danger' : 'border-edge-strong'
                             }`}

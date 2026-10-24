@@ -22,6 +22,7 @@ import { backToLab, openReplay, refreshMe } from '../game/actions.ts';
 import RegisterDialog from './RegisterDialog.tsx';
 import ReplayScreen from './ReplayScreen.tsx';
 import PvpSheet from './PvpSheet.tsx';
+import CommunitySheet from './CommunitySheet.tsx';
 import WalletProvider from '../wallet/WalletProvider.tsx';
 
 /** Screens shown over the Lab scene (the Lab stays mounted underneath). */
@@ -77,9 +78,8 @@ function Frame() {
                         {phase === 'levels' && <LevelsSheet />}
                         {phase === 'collection' && <CollectionSheet />}
                         {phase === 'pvp' && <PvpSheet />}
-                        {(phase === 'community' || phase === 'war' || phase === 'redeem' || phase === 'profile') && (
-                            <Placeholder phase={phase} />
-                        )}
+                        {phase === 'community' && <CommunitySheet />}
+                        {(phase === 'war' || phase === 'redeem' || phase === 'profile') && <Placeholder phase={phase} />}
                         {phase === 'replay' && (
                             <>
                                 <BattleHud />

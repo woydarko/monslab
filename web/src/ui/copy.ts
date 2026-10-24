@@ -17,6 +17,14 @@ const COPY: Record<string, string> = {
     community_full: 'This community is full (30/30).',
     network: 'Monad is slow right now. Try again.',
     login_cancelled: 'Login cancelled. Try again.',
+    // Community + weekly tasks (F-09, F-10). The design copy list does not pin these
+    // codes, so they follow its shape: what happened, then what to do.
+    name_taken: 'That name is taken. Try another one.',
+    invalid_community_name: 'Use 3–20 letters, numbers, space, - or _.',
+    community_not_found: 'No community with that number. Check it and try again.',
+    leader_cannot_leave: "Leaders can't leave while the community has other members.",
+    no_contribution: "You didn't help with this task this week.",
+    already_claimed: 'You already claimed this tier.',
 };
 
 export const FALLBACK_COPY = 'Something went wrong. Try again.';

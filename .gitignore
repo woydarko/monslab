@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.vercel/
+contracts/out/
+contracts/cache/
+contracts/node_modules/
+contracts/broadcast/*/dry-run/
+web/playwright-report/
+web/test-results/

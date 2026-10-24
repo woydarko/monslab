@@ -1,0 +1,290 @@
+@import "tailwindcss";
+
+/* MONSLAB design tokens. */
+@theme {
+    --color-primary: #b6ff3b;
+    --color-surface: #1b1029;
+    --color-panel: #3a2560;
+    --color-edge: #5b3a8c;
+    /* Boundary of an interactive control that has no fill of its own: 3.6:1 on panel, 5.1:1 on surface (WCAG 1.4.11). */
+    --color-edge-strong: #9479cc;
+    --color-ink: #f4f1ff;
+    --color-muted: #c4b5e3;
+    --color-fang: #e63946;
+    --color-goo: #7bd389;
+    --color-eye: #9b5de5;
+    --color-common: #a0a0b0;
+    --color-rare: #4cc9f0;
+    --color-epic: #ffc300;
+    --color-danger: #ff7a90;
+
+    --font-display: "Lilita One", system-ui, sans-serif;
+    --font-body: "Nunito", system-ui, sans-serif;
+    --font-pixel: "VT323", ui-monospace, monospace;
+
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+}
+
+/* ---------------------------------------------------------------------------
+   Viewport + device frame.
+--------------------------------------------------------------------------- */
+
+:root {
+    --game-w: 100vw;
+    /* Top inset handled by the frame; avoid env(safe-area-inset-top). */
+    --safe-top: 0px;
+    --pad: 16px;
+}
+
+/* Desktop web is the primary target: the game fills the whole browser window.
+   Layout switches between 'wide' and 'tall' in src/ui/layout.ts. */
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--font-body);
+    color: var(--color-ink);
+}
+
+#root {
+    position: fixed;
+    inset: 0;
+}
+
+#app-frame {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: var(--game-w);
+    overflow: hidden;
+}
+
+@utility pt-safe-top {
+    padding-top: calc(8px + var(--safe-top));
+}
+@utility pb-safe-bottom {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Component classes live in the components layer so Tailwind utilities
+   (px-3, w-auto, justify-start...) can still override them per element. */
+@layer components {
+/* ---------------------------------------------------------------------------
+   Type scale: the only sizes allowed (DESIGN.md › Typography).
+--------------------------------------------------------------------------- */
+
+.t-hero { font-family: var(--font-display); font-weight: 400; font-size: 80px; line-height: 0.85; }
+.t-hero-wide { font-family: var(--font-display); font-weight: 400; font-size: 112px; line-height: 0.85; }
+.t-banner { font-family: var(--font-display); font-weight: 400; font-size: 56px; line-height: 1; }
+.t-title { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.1; }
+.t-button-lg { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1; }
+.t-button { font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1; }
+.t-body { font-family: var(--font-body); font-weight: 700; font-size: 15px; line-height: 1.4; }
+.t-caption { font-family: var(--font-body); font-weight: 800; font-size: 13px; line-height: 1.3; }
+.t-num-lg { font-family: var(--font-pixel); font-weight: 400; font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
+.t-num { font-family: var(--font-pixel); font-weight: 400; font-size: 24px; line-height: 1; font-variant-numeric: tabular-nums; }
+.t-label { font-family: var(--font-pixel); font-weight: 400; font-size: 18px; line-height: 1; }
+
+/* Text over the live 3D scene: a hard pixel shadow keeps it readable on any pixel. */
+.on-scene {
+    text-shadow: 0 3px 0 #140b20, 0 0 2px #140b20;
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons: the identity motif: a hard bottom edge that sinks on press.
+--------------------------------------------------------------------------- */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 16px;
+    border-radius: var(--radius-md);
+    border: 2px solid #140b20;
+    box-shadow: 0 5px 0 #140b20;
+    transition: transform 60ms ease-out, box-shadow 60ms ease-out, filter 60ms;
+    cursor: pointer;
+}
+.btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #140b20;
+}
+.btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+.btn-primary { background: var(--color-primary); color: var(--color-surface); }
+.btn-secondary { background: var(--color-panel); color: var(--color-ink); border-color: #140b20; }
+.btn-lg { min-height: 60px; }
+.btn-md { min-height: 52px; }
+/* Square icon button for the top bar. */
+.btn-icon { padding: 0; width: 44px; height: 44px; border-radius: var(--radius-md); box-shadow: 0 4px 0 #140b20; }
+.btn-icon:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #140b20; }
+
+/* Keyboard focus (R-32): visible ring in the accent, never removed. */
+:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+/* Flat raised surface: border, no soft shadow (DESIGN.md › Elevation). */
+.panel {
+    background: var(--color-panel);
+    border: 2px solid var(--color-edge);
+    border-radius: var(--radius-md);
+}
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 12px;
+    background: var(--color-panel);
+    border: 2px solid var(--color-edge);
+    border-radius: var(--radius-md);
+}
+
+}
+
+/* Scrollbars: the browser's white system bars broke the dark PS1 panels. Ours are a
+   thick slot with a chunky lilac thumb (same edge-strong token as unfilled controls)
+   that lights up in the accent on hover, like a pressed button. No arrow buttons. */
+/* Firefox only: Chrome ignores the ::-webkit-scrollbar styles below once these are set. */
+@supports not selector(::-webkit-scrollbar) {
+    #root * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-edge-strong) rgba(20, 11, 32, 0.6);
+    }
+}
+#root *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+#root *::-webkit-scrollbar-track {
+    background: rgba(20, 11, 32, 0.6);
+    border-radius: 6px;
+}
+#root *::-webkit-scrollbar-thumb {
+    background: var(--color-edge-strong);
+    border: 2px solid #140b20;
+    border-radius: 6px;
+}
+#root *::-webkit-scrollbar-thumb:hover,
+#root *::-webkit-scrollbar-thumb:active {
+    background: var(--color-primary);
+}
+#root *::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+#root *::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* CRT vignette + scanlines over the 3D view (PS1 frame, GDD §11.1). */
+.crt {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.5) 100%),
+        repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0 1px, transparent 1px 3px);
+}
+
+/* ---------------------------------------------------------------------------
+   Motion (DESIGN.md › Motion). Each one has a written purpose.
+--------------------------------------------------------------------------- */
+
+/* Battle feedback numbers. */
+@keyframes float-up {
+    0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+    15% { transform: translate(-50%, -90%) scale(1.2); opacity: 1; }
+    30% { transform: translate(-50%, -110%) scale(1); }
+    100% { transform: translate(-50%, -200%) scale(1); opacity: 0; }
+}
+.float-num {
+    position: absolute;
+    animation: float-up 0.95s ease-out forwards;
+    pointer-events: none;
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    text-shadow: 2px 2px 0 #140b20, -1px -1px 0 #140b20;
+    white-space: nowrap;
+}
+
+/* Attention: only on the ONE action the player must take next, after 1.5 s idle. */
+@keyframes attention {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+.attention {
+    animation: attention 1.2s ease-in-out 1.5s infinite;
+}
+.attention:active { animation: none; }
+
+/* New reward / result appearing. */
+@keyframes pop-in {
+    0% { transform: scale(0.6); opacity: 0; }
+    70% { transform: scale(1.04); opacity: 1; }
+    100% { transform: scale(1); }
+}
+.pop-in { animation: pop-in 0.28s ease-out both; }
+
+/* Sheets: show where they come from. */
+@keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+.slide-up { animation: slide-up 0.22s ease-out both; }
+
+/* Scene change: fade from black hides the 3D swap. */
+@keyframes fade-from-black {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+.scene-fade {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    pointer-events: none;
+    animation: fade-from-black 0.2s ease-out forwards;
+}
+
+/* FTUE pointer: waiting for one specific tap. */
+@keyframes hand-tap {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-4px, -8px) scale(0.92); }
+}
+.hand { animation: hand-tap 0.9s ease-in-out infinite; pointer-events: none; }
+
+/* Loading eyes: shows the app is alive while it loads. */
+@keyframes blink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+}
+.blink { animation: blink 2.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+    .attention, .pop-in, .slide-up, .hand, .blink { animation: none; }
+    .scene-fade { animation-duration: 0.12s; }
+}

@@ -7,6 +7,25 @@ dist/
 contracts/out/
 contracts/cache/
 contracts/node_modules/
-contracts/broadcast/*/dry-run/
+contracts/broadcast/
 web/playwright-report/
 web/test-results/
+
+# local tooling, agent config and private docs: never part of the repo
+/.claude/
+/.agents/
+/.codex/
+/.cursor/
+/.superpowers/
+/.solidity-auditor/
+/.audit-*/
+/x-ray/
+/graphify-out/
+/docs/
+/_base/
+/tools/
+/CLAUDE.md
+/AGENTS.md
+/GEMINI.md
+.audit-*/
+.solidity-auditor/
